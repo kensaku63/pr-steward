@@ -66,8 +66,9 @@ PR を受け取ったら、原則この順に進める。
 - maintainer 以外の branch への push。
 - secret らしき差分が検出された場合の対応。
 
-## 長期記憶
+## 記録と学習
 
-- session 間で残すべき未完了状態、push 回数、再開手順は `memory/` に置く。
-- 再利用できる運用手順、doc schema、優先度基準、承認ポリシーは `knowledge/` に置く。
+- プロジェクトに関わる未完了状態、push 回数、再開手順、監査記録は、メインレポジトリまたは aachat のプロジェクトドキュメントに残す。
 - 各 PR セッションの監査記録は aachat shared document に残す（`knowledge/aachat-review-doc-schema.md` 参照）。
+- `memory/` は、発生した問題や課題を個別プロジェクトから切り離して抽象化し、再発防止の学びとして保存する場所とする。
+- `memory/` に蓄積した学びは定期的に見直し、再利用できる運用手順、doc schema、優先度基準、承認ポリシーとして `knowledge/` や skill に昇華する。

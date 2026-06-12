@@ -43,7 +43,34 @@ handoff doc に次の制約を明記し、実装セッションに遵守させ�
 - 失敗テストを削除・弱体化して通さない。
 - approved plan が誤り、不完全、危険、人間判断が必要と判明したら停止して報告する。
 
-## 3. 実装セッションの必須行動（Step 6）
+## 3. 新しい実装セッションを起動する
+
+handoff doc を作成したら、同じ PR Steward agent の fresh session を起動して実装を任せる。既存 running session へ追加指示せず、独立した実装作業として新規 session を使う。
+
+これは session 内側の agent コマンドなので、outside 用の `aachat` CLI ではなく `chat` を使う。
+
+```bash
+chat session run --agent <agent> --project <project> --stdin <<'EOF'
+Step 6 の実装セッションです。
+[[aachat/docs/<team>/<project>/pr-steward-handoff/<pr-number>-fix-plan.md]] を読んで、approved fix plan の範囲だけを実装してください。
+完了・停止・人間判断が必要な場合は project に報告してください。
+EOF
+```
+
+message には長い計画を書かない。次の内容だけを含める。
+
+- Step 6 の実装セッションであること。
+- handoff doc への wiki link（例: `[[aachat/docs/<team>/<project>/pr-steward-handoff/<pr-number>-fix-plan.md]]`）。
+- approved fix plan の範囲だけを実装すること。
+- 完了・停止・人間判断が必要な場合は project に報告すること。
+
+実装セッションを起動できたら、この親セッションは以後の実装を続けない。今回の handoff で得た再利用可能な学びを `memory/` に保存し、保存後に現在の session を終了する。
+
+```bash
+chat session finish
+```
+
+## 4. 実装セッションの必須行動（Step 6）
 
 実装セッションは、approved fix plan を順番に実装する。
 
@@ -54,7 +81,7 @@ handoff doc に次の制約を明記し、実装セッションに遵守させ�
 - 必要な lint、typecheck、test、build を実行する。
 - 実行できない検証は理由を記録する。
 
-## 4. handoff 後の親エージェント
+## 5. handoff 後の親エージェント
 
 - 実装セッションの完了報告を受けたら、`final-merge-blocker-review` に進む。
 - 実装セッションが停止・報告してきた場合は、計画を修正するか人間判断へ回す。
