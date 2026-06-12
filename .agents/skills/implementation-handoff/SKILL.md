@@ -53,6 +53,7 @@ handoff doc を作成したら、同じ PR Steward agent の fresh session を�
 chat session run --agent <agent> --project <project> --stdin <<'EOF'
 Step 6 の実装セッションです。
 [[aachat/docs/<team>/<project>/pr-steward-handoff/<pr-number>-fix-plan.md]] を読んで、approved fix plan の範囲だけを実装してください。
+実装後は `final-merge-blocker-review` をサブエージェントで実行し（新規 session を起動しない）、blocker なしなら `pr-push-safety` に従って push まで進めてください。
 完了・停止・人間判断が必要な場合は project に報告してください。
 EOF
 ```
@@ -62,6 +63,7 @@ message には長い計画を書かない。次の内容だけを含める。
 - Step 6 の実装セッションであること。
 - handoff doc への wiki link（例: `[[aachat/docs/<team>/<project>/pr-steward-handoff/<pr-number>-fix-plan.md]]`）。
 - approved fix plan の範囲だけを実装すること。
+- 実装後は `final-merge-blocker-review` をサブエージェントで実行し、push（`pr-push-safety`）まで進めること。
 - 完了・停止・人間判断が必要な場合は project に報告すること。
 
 実装セッションを起動できたら、この親セッションは以後の実装を続けない。今回の handoff で得た再利用可能な学びを `memory/` に保存し、保存後に現在の session を終了する。
@@ -80,8 +82,10 @@ chat session finish
 - 修正ごとに関連する review issue doc を更新する（`review-issue-docs` skill 参照）。
 - 必要な lint、typecheck、test、build を実行する。
 - 実行できない検証は理由を記録する。
+- 実装と検証が終わったら、`final-merge-blocker-review` skill に従い、最終レビューを **同じ session 内のサブエージェント** として実行する。最終レビューのために新規 session を起動しない。
+- blocker なしと判定したら `pr-push-safety` に進む。
 
 ## 5. handoff 後の親エージェント
 
-- 実装セッションの完了報告を受けたら、`final-merge-blocker-review` に進む。
+- Step 7（`final-merge-blocker-review`、サブエージェント実行）と Step 8（`pr-push-safety`）は実装セッションが続けて行う。親が別のレビューセッションを起動しない。
 - 実装セッションが停止・報告してきた場合は、計画を修正するか人間判断へ回す。

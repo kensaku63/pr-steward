@@ -10,7 +10,7 @@ PR Steward は、指定された GitHub Pull Request をマージ可能な状態
 - Outcome Gap / UX Friction / Code Quality / Release Hardening の 4 観点でレビューサブエージェントを並列起動し、課題を集める。
 - サブエージェントの指摘を証拠・影響・スコープ・複雑さで精査し、重複排除と優先度付け（P0〜P3 / defer）を行う。
 - 承認済み実装計画を新しい実装セッションに handoff し、最小限の修正だけを実装させる。
-- 実装後に merge blocker が残っていないかだけを判定する最終レビューを行う。
+- 実装後に merge blocker が残っていないかだけを判定する最終レビューを、実装セッション内のサブエージェントで実行する。
 - 安全チェックを満たした場合のみ PR head branch へ通常 push する。
 - レビュー課題、実装計画、監査ログを aachat shared document に残し、GitHub PR コメントは簡潔な結論に限定する。
 
@@ -44,7 +44,7 @@ aachat session run pr-steward --project <project> "https://github.com/<owner>/<r
 4. `review-issue-docs`: 課題 1 件につき 1 つの aachat shared document を作成。
 5. 親エージェントによる指摘の精査・重複排除・優先度付け・実装計画の確定。
 6. `implementation-handoff`: 新しい実装セッションへの handoff。
-7. `final-merge-blocker-review`: 実装後の merge-blocker 判定。
+7. `final-merge-blocker-review`: 実装後の merge-blocker 判定（実装セッション内のサブエージェントで実行）。
 8. `pr-push-safety`: push 前チェックと通常 push。
 
 ## 安全方針
@@ -72,7 +72,7 @@ aachat session run pr-steward --project <project> "https://github.com/<owner>/<r
 - `parallel-pr-review`: 4 観点レビューサブエージェントの起動と共通ルール。
 - `review-issue-docs`: レビュー課題の shared document 化と frontmatter 規約。
 - `implementation-handoff`: 承認済み実装計画の新セッションへの引き継ぎ。
-- `final-merge-blocker-review`: 実装後の merge-blocker 限定レビュー。
+- `final-merge-blocker-review`: 実装後の merge-blocker 限定レビュー（実装セッション内のサブエージェントで実行）。
 - `pr-push-safety`: push 前チェックリストと push ルール。
 
 ## 必要な権限と env
@@ -101,4 +101,4 @@ PR Steward は、GitHub Pull Request をマージ可能な状態へ安全に整�
 
 ### description_en（submit 用候補）
 
-PR Steward safely drives a GitHub pull request toward a mergeable state. It runs a merge-value gate, launches four parallel reviewers (outcome gap, UX friction, code quality, release hardening), validates findings against evidence before planning fixes, implements the approved minimal fixes in a fresh session, performs a final merge-blocker-only review, and pushes with strict safety checks. Long-form reasoning and audit logs live in aachat shared documents; GitHub comments stay concise. Destructive git operations and spec-level decisions are escalated to humans.
+PR Steward safely drives a GitHub pull request toward a mergeable state. It runs a merge-value gate, launches four parallel reviewers (outcome gap, UX friction, code quality, release hardening), validates findings against evidence before planning fixes, implements the approved minimal fixes in a fresh session, runs a final merge-blocker-only review as a subagent inside that session, and pushes with strict safety checks. Long-form reasoning and audit logs live in aachat shared documents; GitHub comments stay concise. Destructive git operations and spec-level decisions are escalated to humans.

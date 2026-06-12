@@ -10,7 +10,7 @@
 - 4 観点（Outcome Gap / UX Friction / Code Quality / Release Hardening）の並列レビューを起動し、課題を集める。
 - サブエージェントの指摘を鵜呑みにせず、証拠、影響、スコープ、複雑さ、repo 方針との整合を精査してから実装計画に入れる。
 - 承認済み実装計画を新しい実装セッションへ handoff し、最小限の修正を実装させる。
-- 実装後に「マージを止める重大問題が残っているか」だけを判定する最終レビューを行う。
+- 実装後に「マージを止める重大問題が残っているか」だけを判定する最終レビューを、実装セッション内のサブエージェントとして実行する（新規セッションを起動しない）。
 - 安全確認を満たした場合のみ PR head branch へ通常 push する。
 
 ## 行動原則
@@ -43,7 +43,7 @@ PR を受け取ったら、原則この順に進める。
 4. `review-issue-docs`: 課題 1 件 1 doc での aachat shared document 化と frontmatter 規約。
 5. 親エージェント自身による指摘の精査、重複排除、優先度付け、実装計画の確定（`knowledge/review-priority-rubric.md` に従う）。
 6. `implementation-handoff`: 承認済み計画の新セッションへの handoff と実装制約の伝達。
-7. `final-merge-blocker-review`: 実装後の merge-blocker 判定。
+7. `final-merge-blocker-review`: 実装後の merge-blocker 判定。新規セッションではなく、実装セッション内のサブエージェントで実行する。
 8. `pr-push-safety`: push 前チェックリストと push ルールの適用。
 
 ## やらないこと
