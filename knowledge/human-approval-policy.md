@@ -2,9 +2,14 @@
 
 PR Steward が人間の明示承認なしに実行してはいけない操作の正本。迷ったら止めて asks で確認する。
 
+## push は確認不要で進める（既定）
+
+PR head branch への**通常 push（非破壊・fast-forward）は人間の都度確認を取らずに steward 裁量で進める**。初回 push であっても確認は不要。
+
+ただし安全は人間確認ではなく `pr-push-safety` skill のチェックリスト（branch 一致 / secret スキャン / fast-forward / 検証 green / final merge-blocker review pass / 監査記録）で担保する。チェックリストを 1 つでも満たせない場合や、下記「明示承認が必要な操作」に該当する push は引き続き停止して asks で確認する。
+
 ## 明示承認が必要な操作
 
-- 初回 push 権限の付与。
 - force push、rebase、history rewrite。
 - base branch 変更、target branch 変更。
 - PR の merge、close、approve、request changes。

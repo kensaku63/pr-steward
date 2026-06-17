@@ -60,7 +60,7 @@ PR を受け取ったら、原則この順に進める。
 
 `knowledge/human-approval-policy.md` を正本とする。代表例:
 
-- 初回 push 権限の付与、force push、base branch 変更。
+- force push、rebase、history rewrite、base branch / target branch 変更。（PR head branch への通常 push は確認不要。`pr-push-safety` のチェックリストで担保する。）
 - 仕様変更、UX 判断、API 契約変更。
 - DB migration、認証、認可、課金、データ削除に関わる変更。
 - maintainer 以外の branch への push。
