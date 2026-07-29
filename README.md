@@ -8,6 +8,7 @@ PR Steward は、指定された GitHub Pull Request をマージ可能な状態
 
 - PR の目的・差分・リスクを読み、後続レビューに進める価値を `pass` / `needs-human` / `reject` で判定する。
 - Outcome Gap / UX Friction / Code Quality / Release Hardening の 4 観点でレビューサブエージェントを並列起動し、課題を集める。
+- GitHub PR 上の既存レビューを取得し、人間に加えて Cursor / Codex の指摘も出典付きで候補集合へ取り込む。
 - サブエージェントの指摘を証拠・影響・スコープ・複雑さで精査し、重複排除と優先度付け（P0〜P3 / defer）を行う。
 - 承認済み実装計画を新しい実装セッションに handoff し、最小限の修正だけを実装させる。
 - 実装後に merge blocker が残っていないかだけを判定する最終レビューを、実装セッション内のサブエージェントで実行する。
@@ -40,12 +41,13 @@ aachat session run pr-steward --project <project> "https://github.com/<owner>/<r
 
 1. `pr-checkout`: PR の特定と安全な checkout。
 2. `merge-value-gate`: マージ価値の判定。`reject` は例外扱いで、迷ったら人間判断に倒す。
-3. `parallel-pr-review`: 4 観点レビューの並列実行。
-4. `review-issue-docs`: 課題 1 件につき 1 つの aachat shared document を作成。
-5. 親エージェントによる指摘の精査・重複排除・優先度付け・実装計画の確定。
-6. `implementation-handoff`: 新しい実装セッションへの handoff。
-7. `final-merge-blocker-review`: 実装後の merge-blocker 判定（実装セッション内のサブエージェントで実行）。
-8. `pr-push-safety`: push 前チェックと通常 push。
+3. `parallel-pr-review`: Cursor / Codex を含む既存 PR レビューの取得と、4 観点レビューの並列実行。
+4. 全 candidate の intake ledger 化と、根本原因単位の cluster 化。
+5. `review-issue-docs`: 小さな batch で精査し、有効な課題を 1 件ずつ shared document に固定。
+6. 親エージェントによる件数照合・重複排除・優先度付け・実装計画の確定。
+7. `implementation-handoff`: 新しい実装セッションへの handoff。
+8. `final-merge-blocker-review`: 実装後の merge-blocker 判定（実装セッション内のサブエージェントで実行）。
+9. `pr-push-safety`: push 前チェックと通常 push。
 
 ## 安全方針
 
@@ -69,7 +71,7 @@ aachat session run pr-steward --project <project> "https://github.com/<owner>/<r
 
 - `pr-checkout`: 対象 PR の特定、working tree 確認、安全な checkout。
 - `merge-value-gate`: `pass` / `needs-human` / `reject` の判定基準とガードレール。
-- `parallel-pr-review`: 4 観点レビューサブエージェントの起動と共通ルール。
+- `parallel-pr-review`: Cursor / Codex を含む既存 PR レビューの intake、4 観点レビューサブエージェントの起動と共通ルール。
 - `review-issue-docs`: レビュー課題の shared document 化と frontmatter 規約。
 - `implementation-handoff`: 承認済み実装計画の新セッションへの引き継ぎ。
 - `final-merge-blocker-review`: 実装後の merge-blocker 限定レビュー（実装セッション内のサブエージェントで実行）。

@@ -1,11 +1,36 @@
 ---
 name: parallel-pr-review
-description: Outcome Gap / UX Friction / Code Quality / Release Hardening の 4 観点レビューサブエージェントを並列起動し、マージ可能性を高める課題と最小改善案を集める skill。Use after the merge value gate passes, when reviewing a PR from multiple perspectives, or when collecting review issues for validation.
+description: GitHub PR 上の既存レビュー（Cursor / Codex を含む）を取り込み、Outcome Gap / UX Friction / Code Quality / Release Hardening の 4 観点レビューサブエージェントを並列起動して、マージ可能性を高める課題候補を集める skill。Use after the merge value gate passes, when reviewing a PR from multiple perspectives, or when collecting review issues for validation.
 ---
 
 # Parallel PR Review
 
-PR Steward workflow の Step 3。親エージェントは 4 つのレビューサブエージェントを並列起動する。各サブエージェントは採点や総評ではなく、マージ可能性を高めるための「課題」と「最小で妥当な改善案」を出す。
+PR Steward workflow の Step 3。親エージェントは、まず GitHub PR 上の既存レビューを取得し、その後 4 つのレビューサブエージェントを並列起動する。既存レビューとサブエージェント出力は、採用前の `candidate` として同じ intake ledger に集約する。
+
+## 0. GitHub PR 上の既存レビューを取得する
+
+4 観点レビューの開始前に、次の GitHub surface をすべて取得する。
+
+- PR conversation の issue comments
+- submitted review の summary/body
+- inline review comments と review threads
+- resolved / unresolved、outdated / current の状態
+
+取得時に reviewer を人間だけへ限定しない。Cursor / Codex が投稿した review、summary、inline comment も必ず候補集合へ含める。bot 名を固定値で決め打ちせず、GitHub の `author.login`、app/bot metadata、comment URL / ID を保存する。Cursor / Codex と判定できない投稿は `unknown` のまま残し、推測で帰属させない。
+
+取得方法と必要 field は `knowledge/github-pr-operations.md` の「既存 PR レビューの取得」を正本とする。
+
+各投稿は audit record の intake ledger に、最低限次を記録する。
+
+- stable candidate ID
+- source kind（issue comment / review summary / inline comment / parallel reviewer）
+- author login と、確認できる場合だけ tool family（Cursor / Codex / human / other）
+- URL / GitHub ID
+- path / line / review state / resolved / outdated（存在する場合）
+- 指摘本文の短い要約
+- disposition（最初は `untriaged`）
+
+レビュー本文を取得できなかった surface がある場合、レビュー取り込み完了とはしない。権限・pagination・API 制限などの理由を audit record に `未確認` として記録する。
 
 ## 1. 起動する 4 観点
 
@@ -59,12 +84,13 @@ PR Steward workflow の Step 3。親エージェントは 4 つのレビュー�
 - 各サブエージェントは担当領域外の指摘を出さない。
 - 指摘は、観測した事実、直す価値、十分な解決状態、最適な解決方針が説明できるものに限定する。
 - style、命名、好み、軽微なリファクタは、マージ判断に影響しない限り出力しない。
-- 長文成果物は message に書かず、aachat shared document に固定する。
-- 課題 1 件につき 1 doc を作る。doc の path と schema は `review-issue-docs` skill と `knowledge/aachat-review-doc-schema.md` に従う。
+- 長文成果物は message に書かず、まず audit record の intake ledger に candidate として固定する。
+- candidate の段階では review issue doc を量産しない。親エージェントが有効と確認した unique cluster だけを、課題 1 件につき 1 doc へ昇格する。doc の path と schema は `review-issue-docs` skill と `knowledge/aachat-review-doc-schema.md` に従う。
 - 各課題は「何が問題か」だけで終えず、「なぜ今直すべきか」「どの状態になれば十分か」「どう解決するのが最適か」「なぜそれが最適か」まで書く。
 - 書けない項目を無理に埋めない。確認できていない内容は `未確認` と明記する。
 - `ありそう`、`可能性がある` だけの課題は、直す価値または最適な解決方針まで具体化できない限り課題化しない。
 - テスト不足は単独では課題にしない。追加すべきテストがあると主張する場合は、守るべき振る舞い、壊れやすい変更点、既存テストでは検知できない理由、最小のテスト形態を明示する（`knowledge/review-priority-rubric.md` のテスト指摘採用基準を参照）。
+- 既存 PR レビューと同じ指摘を見つけた場合も削除せず、同じ cluster に source を追加する。どの reviewer が先に指摘したかを失わない。
 
 ## 3. サブエージェントへ渡す入力
 
@@ -73,10 +99,13 @@ PR Steward workflow の Step 3。親エージェントは 4 つのレビュー�
 - PR URL / number、base branch、head branch
 - PR の目的の要約と関連 Issue / 仕様へのリンク
 - 担当領域の定義と採用基準（このファイルの該当節）
-- review issue doc の path 規約と frontmatter schema
+- audit record の intake ledger contract、candidate ID / source metadata / disposition の規約
+- 親エージェントによる精査後に使う review issue doc の path 規約と frontmatter schema
 - 「担当領域外の指摘を出さない」「採点や総評をしない」という制約
 
 ## 4. 完了条件
 
-- 4 観点すべてのサブエージェントが完了し、作成された review issue docs の一覧が揃っている。
-- 一覧を audit record doc に記録してから、親エージェントの精査（Step 4、`knowledge/review-priority-rubric.md`）に進む。
+- GitHub PR の既存レビュー取得が完了し、Cursor / Codex を含む全投稿の candidate ID と source が intake ledger にある。
+- 4 観点すべてのサブエージェントが完了し、その全候補が intake ledger に追記されている。
+- 明らかな同一指摘を cluster 化しても、元 candidate ID と source が失われていない。
+- candidate 総数と `untriaged` 件数を audit record doc に記録してから、親エージェントの batch 精査（`knowledge/review-priority-rubric.md`）に進む。

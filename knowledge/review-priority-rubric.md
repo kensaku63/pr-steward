@@ -17,6 +17,28 @@
 - 副作用リスク: shared code、public API、DB schema、認可、非同期処理、既存互換性に触れるか。
 - 人間判断の要否: 仕様、UX、API、スコープ判断が必要か。
 
+GitHub PR 上の Cursor / Codex / 人間 reviewer の指摘にも、同じ基準を適用する。author や review tool の評判を根拠に採否を決めない。
+
+## 認知負荷を超えない精査手順
+
+親エージェントは全指摘を一度の prompt / 判断で処理しない。
+
+1. まず全 candidate を lossless に intake ledger へ固定し、source と stable ID を付ける。
+2. 同じ根本原因・失敗条件・修正対象を持つ candidate を cluster 化する。cluster 化は整理であり、採否判断ではない。
+3. 原則最大 5 cluster の batch に分ける。P0候補、security、認証、データ破壊は 1 cluster ずつ扱う。
+4. 各 cluster について、必要な diff・仕様・テスト・実行証拠だけを読み直し、この checklist で disposition を決める。
+5. batch ごとに ledger と issue doc を更新して判断を外部化し、未処理件数を再計算してから次へ進む。
+6. 全 batch 後に横断重複と優先度の整合だけを別 pass で確認する。個別課題の詳細判定と全体最適化を同時に行わない。
+
+完了時には、次の件数が保存則を満たすことを確認する。
+
+```text
+collected candidates
+= accepted + rejected + deferred + duplicate + superseded
+```
+
+`untriaged` が 1 件でも残る場合、実装計画を確定しない。context 不足や時間不足で精査品質を維持できない場合は、未処理範囲を明示して次 session へ handoff し、完了扱いにしない。
+
 ## 重複排除
 
 - 同じ根本原因、同じ修正対象、同じ失敗条件、同じ影響、片方の解決でもう片方も解消するものは 1 課題に統合する。

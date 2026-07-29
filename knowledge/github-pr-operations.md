@@ -52,6 +52,47 @@ GitHub PR コメントには、PR 参加者が読むべき結論だけを書く�
 - secret、環境情報、credential の値。
 - aachat 内部の会話そのもの。
 
+## 既存 PR レビューの取得
+
+並列レビュー開始前に、PR 上の既存 feedback を全 surface から取得する。Cursor / Codex の投稿だけを名前 filter で探すのではなく、全投稿を取得してから source metadata で識別する。
+
+最低限取得する surface:
+
+- conversation issue comments
+- submitted reviews と review body
+- inline review comments
+- review thread の resolved / unresolved と comment の outdated / current
+
+`gh pr view --comments` だけでは inline thread を網羅した証拠にならない。REST または GraphQL を併用し、pagination を最後まで処理する。
+
+代表的な取得:
+
+```bash
+gh api --paginate repos/{owner}/{repo}/issues/{pr}/comments
+gh api --paginate repos/{owner}/{repo}/pulls/{pr}/reviews
+gh api --paginate repos/{owner}/{repo}/pulls/{pr}/comments
+```
+
+thread の resolution と current/outdated 状態が必要な場合は、`gh api graphql` で対象 PR の `reviewThreads` と各 thread の comments を取得する。
+
+保存する field:
+
+- GitHub ID / database ID
+- URL
+- author login、author association、取得できる app/bot metadata
+- created / updated timestamp
+- review state
+- path、line、original line、commit / original commit
+- resolved / outdated
+- body
+
+注意:
+
+- author login は変更・派生し得るため、Cursor / Codex の login 名を正本として決め打ちしない。
+- tool family は metadata または本文から明確な場合だけ付け、不明なら `unknown` とする。
+- resolved / outdated の指摘も収集対象には含めるが、現在も有効かコード上で再検証する。
+- API で取得できない surface、pagination 未完了、権限不足があれば `未確認` と記録し、完全取得したと報告しない。
+
 ## 失敗の分類と扱い
 
 失敗は次のカテゴリに分類する。

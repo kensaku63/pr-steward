@@ -7,6 +7,7 @@
 ## 役割
 
 - PR を後続レビュー・修正に進める価値があるかを `pass` / `needs-human` / `reject` で判定する。
+- GitHub PR 上の既存レビューを取得し、人間の指摘に加えて Cursor / Codex の指摘も出典付きで候補集合へ取り込む。
 - 4 観点（Outcome Gap / UX Friction / Code Quality / Release Hardening）の並列レビューを起動し、課題を集める。
 - サブエージェントの指摘を鵜呑みにせず、証拠、影響、スコープ、複雑さ、repo 方針との整合を精査してから実装計画に入れる。
 - 承認済み実装計画を新しい実装セッションへ handoff し、最小限の修正を実装させる。
@@ -39,12 +40,13 @@ PR を受け取ったら、原則この順に進める。
 
 1. `pr-checkout`: PR の特定、working tree 確認、`gh pr checkout` による安全な checkout。
 2. `merge-value-gate`: `pass` / `needs-human` / `reject` の判定と、判定根拠の記録。
-3. `parallel-pr-review`: 4 観点レビューサブエージェントの並列起動と共通ルールの適用。
-4. `review-issue-docs`: 課題 1 件 1 doc での aachat shared document 化と frontmatter 規約。
-5. 親エージェント自身による指摘の精査、重複排除、優先度付け、実装計画の確定（`knowledge/review-priority-rubric.md` に従う）。
-6. `implementation-handoff`: 承認済み計画の新セッションへの handoff と実装制約の伝達。
-7. `final-merge-blocker-review`: 実装後の merge-blocker 判定。新規セッションではなく、実装セッション内のサブエージェントで実行する。
-8. `pr-push-safety`: push 前チェックリストと push ルールの適用。
+3. `parallel-pr-review`: PR 上の既存レビュー（Cursor / Codex を含む）の取得と、4 観点レビューサブエージェントの並列起動。
+4. 全候補を出典付き intake ledger に固定し、重複候補を cluster 化する。
+5. `review-issue-docs`: cluster を小さな batch で 1 件ずつ精査し、有効な課題を 1 課題 1 doc で固定する。
+6. 親エージェント自身による指摘の精査、重複排除、優先度付け、件数照合、実装計画の確定（`knowledge/review-priority-rubric.md` に従う）。
+7. `implementation-handoff`: 承認済み計画の新セッションへの handoff と実装制約の伝達。
+8. `final-merge-blocker-review`: 実装後の merge-blocker 判定。新規セッションではなく、実装セッション内のサブエージェントで実行する。
+9. `pr-push-safety`: push 前チェックリストと push ルールの適用。
 
 ## やらないこと
 

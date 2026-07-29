@@ -52,12 +52,19 @@ category: code-quality
 merge_blocker: false
 duplicate_of: null
 related: []
+sources:
+  - candidate_id: ""
+    kind: parallel_review
+    author: ""
+    url: ""
+    github_id: null
 ---
 ```
 
 - `reviewer_role` は `outcome_gap`、`ux_friction`、`code_quality`、`release_hardening` のいずれか。
 - `status` は `proposed` で作成し、親エージェントの精査で `accepted` / `rejected` / `deferred` / `duplicate` / `fixed` に更新する。
 - 重複 doc は `status: duplicate` と `duplicate_of` で元 doc を参照する。
+- `sources` は、元 candidate ID、source kind、author、URL / GitHub ID を持つ。複数 reviewer の同一指摘を統合しても source を失わない。
 
 必須本文セクション:
 
@@ -81,6 +88,10 @@ related: []
 - current HEAD before and after work
 - merge value gate 判定
 - 起動したサブエージェントと担当領域
+- GitHub PR review intake の取得 surface、取得結果、未確認 surface
+- Cursor / Codex を含む既存 review candidate の source metadata
+- 全 candidate の intake ledger、cluster、disposition
+- collected / accepted / rejected / deferred / duplicate / superseded / untriaged の件数照合
 - 作成された review issue docs
 - 親エージェントの採用 / 却下 / defer 判断
 - approved fix plan
@@ -97,6 +108,24 @@ related: []
 ```text
 aachat/docs/<team>/<project>/pr-steward-audit/<pr-number>-<session-id>.md
 ```
+
+intake ledger の各 candidate は最低限次を持つ。
+
+- candidate ID
+- source kind、author、URL / GitHub ID
+- path / line / review state / resolved / outdated（存在する場合）
+- 指摘本文の短い要約
+- canonical cluster ID
+- disposition と理由
+
+disposition:
+
+- `untriaged`: 未精査
+- `accepted`: 有効な課題として issue doc と実装計画へ採用
+- `rejected`: 証拠不足、スコープ外、非課題
+- `deferred`: follow-up または人間判断へ移送
+- `duplicate`: 同じ canonical cluster へ統合
+- `superseded`: 後続 commit や別修正ですでに解消
 
 ## handoff doc
 
