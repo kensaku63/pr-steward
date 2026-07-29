@@ -5,15 +5,17 @@ PR Steward が GitHub PR を扱うときの操作手順と制約の正本。
 ## PR の特定と checkout
 
 対象 PR は明示された PR URL または PR number から特定する。
+checkout の実行手順は `.agents/skills/pr-checkout/SKILL.md` を正本とする。
 
 必須手順:
 
 - `gh pr view <number|url> --json number,headRepository,headRefName,baseRefName,author,maintainerCanModify,headRefOid` で PR number、head repository、head branch、base branch、author、maintainer permission、current HEAD を確認する。
 - 作業前に `git status --porcelain` を確認する。
 - dirty working tree がある場合、対象 PR 由来か判定できるまで変更を開始しない。
-- checkout は原則 `gh pr checkout <number>` を使う。
+- `git worktree list --porcelain` で PR head branch が別 worktree に占有されていないか、`gh pr checkout` より先に確認する。
+- 別 worktree が使用中なら、その worktree を変更せず、PR の `refs/pull/<number>/head` から session 専用 local branch を upstream なしで作る。
 - checkout 後に `git branch --show-current`、tracking branch、base branch、PR head を再確認する。
-- pull は fast-forward のみ許可する（`git pull --ff-only`）。merge commit、rebase、history rewrite は自動実行しない。
+- 更新は fast-forward のみ許可する。merge commit、rebase、history rewrite は自動実行しない。
 
 禁止事項:
 
@@ -92,6 +94,17 @@ thread の resolution と current/outdated 状態が必要な場合は、`gh api
 - tool family は metadata または本文から明確な場合だけ付け、不明なら `unknown` とする。
 - resolved / outdated の指摘も収集対象には含めるが、現在も有効かコード上で再検証する。
 - API で取得できない surface、pagination 未完了、権限不足があれば `未確認` と記録し、完全取得したと報告しない。
+
+## `GH_TOKEN` と Checks API
+
+`gh` は環境変数 `GH_TOKEN` を keyring の認証より優先する。PR metadata は取得できるのに `gh pr checks` や check-runs API だけが `403 Resource not accessible by personal access token` になり、レスポンスの `X-Accepted-GitHub-Permissions` が `checks=read` を示す場合は、未認証ではなく active token の権限制約として扱う。
+
+GitHub の fine-grained personal access token では、Checks API の資料が `Checks: read` を要求していても、token 設定 UI に `Checks` が出ず付与できないことがある。次の順で切り分ける。
+
+1. `gh auth status` で `GH_TOKEN` と keyring のどちらが active か確認する。token value は記録・出力しない。
+2. keyring に同一 account の有効な OAuth token がある場合は、read-only の probe を `env -u GH_TOKEN gh api ...` で実行する。
+3. probe が成功するなら、session では `env -u GH_TOKEN gh ...` を使うか、環境側の不要な `GH_TOKEN` 注入を外す。
+4. keyring を使えない環境では、classic PAT の `repo` scope または `Checks: read` を持つ GitHub App token を人間が用意する。secret の作成・差し替えは自動実行しない。
 
 ## 失敗の分類と扱い
 
