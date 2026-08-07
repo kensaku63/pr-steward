@@ -66,3 +66,9 @@ collected candidates
 - テストが必要な場合は、unit / integration / characterization / golden / contract / e2e のどれが最小で十分かを示す。
 - リファクタリングや構造変更に安全網がない場合は、まず現在の振る舞いを固定する characterization test を提案する。
 - テストが private detail を固定し、将来の安全な変更を妨げる場合は、追加ではなく外部契約を固定する形への書き換えを提案する。
+
+## Rolling compatibility と snapshot freshness
+
+- client / server、CLI / API のように別々に配備される契約変更では、release順を証拠として確認し、new client → old server と old client → new server の両方向をcontract testで固定する。片方向だけの互換性はrolling releaseの安全性を証明しない。
+- legacy clientの不完全snapshotではdeactivateを省略してよいが、source watermarkや世代判定を迂回してはならない。stale snapshotは既存rowの復活だけでなく、削除済みの未登録rowのinsertもno-opでなければならない。
+- payload budgetのため本文を省略する場合、hashやdigestが変わったrowに旧cacheを残さない。metadataだけでbudgetを超える場合も主要処理を停止させず、無効なpartial reportを送らない挙動を境界testで固定する。
