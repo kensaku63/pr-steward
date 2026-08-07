@@ -5,7 +5,7 @@ PR Steward が GitHub PR を扱うときの操作手順と制約の正本。
 ## PR の特定と checkout
 
 対象 PR は明示された PR URL または PR number から特定する。
-checkout の実行手順は `.agents/skills/pr-checkout/SKILL.md` を正本とする。
+checkout の実行手順は `$AA_AGENT_DIR/.agents/skills/pr-checkout/SKILL.md` を正本とする。
 
 必須手順:
 
@@ -25,11 +25,11 @@ checkout の実行手順は `.agents/skills/pr-checkout/SKILL.md` を正本と�
 
 ## push ルール
 
-push 前チェックは `.agents/skills/pr-push-safety/SKILL.md` を正本とする。
+push 前チェックは `$AA_AGENT_DIR/.agents/skills/pr-push-safety/SKILL.md` を正本とする。
 
 - 通常 push のみ許可する。
 - force push は既定禁止。人間が明示承認した場合だけ許可する。
-- 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回までとする。回数は `memory/` に記録する。
+- 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回までとする。回数は `$AA_AGENT_DIR/memory/` に記録する。
 - push 失敗時は原因を分類し、勝手に force push しない。
 
 ## GitHub コメントポリシー

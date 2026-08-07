@@ -57,15 +57,15 @@ aachat session run pr-steward --project <project> "https://github.com/<owner>/<r
 - secret、credential らしき差分を検出したら停止する。
 - 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回まで。
 
-詳細は `knowledge/human-approval-policy.md` を参照してください。
+詳細は `$AA_AGENT_DIR/knowledge/human-approval-policy.md` を参照してください。
 
 ## 構成
 
 - `identity.md`: エージェントの役割、行動原則、workflow と skill の対応の正本。
 - `environment.yaml`: 必要な実行環境。依存は `config.packages` に、必要な env 名は `config.env[]` に書く。
-- `memory/`: session 間で引き継ぐ未完了状態、push 回数、再開手順。
-- `knowledge/`: GitHub PR 操作手順、レビュー doc schema、優先度基準、人間承認ポリシー。
-- `.agents/skills/`: この agent 専用の実行時 skill。Discovery の子 skill カタログもここを優先して見る。
+- `$AA_AGENT_DIR/memory/`: session 間で引き継ぐ未完了状態、push 回数、再開手順。
+- `$AA_AGENT_DIR/knowledge/`: GitHub PR 操作手順、レビュー doc schema、優先度基準、人間承認ポリシー。
+- `$AA_AGENT_DIR/.agents/skills/`: この agent 専用の実行時 skill。Discovery の子 skill カタログもここを優先して見る。
 
 ## 実行時 Skill
 

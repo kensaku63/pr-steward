@@ -5,7 +5,7 @@ description: 承認済み実装計画を新しい実装セッションへ handof
 
 # Implementation Handoff
 
-PR Steward workflow の Step 5。親エージェントは、承認済み実装計画を新しいセッションへ渡す。
+PR Steward workflow の Step 7。親エージェントは、承認済み実装計画を新しいセッションへ渡す。
 
 ## 1. handoff doc を作る
 
@@ -14,7 +14,7 @@ handoff は aachat shared document に保存し、message には短い指示と 
 推奨 path:
 
 ```text
-aachat/docs/<team>/<project>/pr-steward-handoff/<pr-number>-fix-plan.md
+aachat/projects/<team>/<project>/docs/pr-steward-handoff/<pr-number>-fix-plan.md
 ```
 
 必須項目:
@@ -51,8 +51,8 @@ handoff doc を作成したら、同じ PR Steward agent の fresh session を�
 
 ```bash
 chat session run --agent <agent> --project <project> --stdin <<'EOF'
-Step 6 の実装セッションです。
-[[aachat/docs/<team>/<project>/pr-steward-handoff/<pr-number>-fix-plan.md]] を読んで、approved fix plan の範囲だけを実装してください。
+Step 7 の実装セッションです。
+[[aachat/projects/<team>/<project>/docs/pr-steward-handoff/<pr-number>-fix-plan.md]] を読んで、approved fix plan の範囲だけを実装してください。
 実装後は `final-merge-blocker-review` をサブエージェントで実行し（新規 session を起動しない）、blocker なしなら `pr-push-safety` に従って push まで進めてください。
 完了・停止・人間判断が必要な場合は project に報告してください。
 EOF
@@ -60,19 +60,19 @@ EOF
 
 message には長い計画を書かない。次の内容だけを含める。
 
-- Step 6 の実装セッションであること。
-- handoff doc への wiki link（例: `[[aachat/docs/<team>/<project>/pr-steward-handoff/<pr-number>-fix-plan.md]]`）。
+- Step 7 の実装セッションであること。
+- handoff doc への wiki link（例: `[[aachat/projects/<team>/<project>/docs/pr-steward-handoff/<pr-number>-fix-plan.md]]`）。
 - approved fix plan の範囲だけを実装すること。
 - 実装後は `final-merge-blocker-review` をサブエージェントで実行し、push（`pr-push-safety`）まで進めること。
 - 完了・停止・人間判断が必要な場合は project に報告すること。
 
-実装セッションを起動できたら、この親セッションは以後の実装を続けない。今回の handoff で得た再利用可能な学びを `memory/` に保存し、保存後に現在の session を終了する。
+実装セッションを起動できたら、この親セッションは以後の実装を続けない。今回の handoff で得た再利用可能な学びを `$AA_AGENT_DIR/memory/` に保存し、保存後に現在の session を終了する。
 
 ```bash
 chat session finish
 ```
 
-## 4. 実装セッションの必須行動（Step 6）
+## 4. 実装セッションの必須行動（Step 7）
 
 実装セッションは、approved fix plan を順番に実装する。
 
@@ -87,5 +87,5 @@ chat session finish
 
 ## 5. handoff 後の親エージェント
 
-- Step 7（`final-merge-blocker-review`、サブエージェント実行）と Step 8（`pr-push-safety`）は実装セッションが続けて行う。親が別のレビューセッションを起動しない。
+- Step 8（`final-merge-blocker-review`、サブエージェント実行）と Step 9（`pr-push-safety`）は実装セッションが続けて行う。親が別のレビューセッションを起動しない。
 - 実装セッションが停止・報告してきた場合は、計画を修正するか人間判断へ回す。

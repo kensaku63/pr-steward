@@ -17,7 +17,7 @@ PR Steward が aachat shared document に残す成果物の path 規約と schem
 長文成果物は message ではなく shared document に固定する。shared document は必ず次の形式の path に作る。
 
 ```text
-aachat/docs/<team>/<project>/<kind>/<id>.md
+aachat/projects/<team>/<project>/docs/<kind>/<id>.md
 ```
 
 ## review issue doc
@@ -27,13 +27,13 @@ aachat/docs/<team>/<project>/<kind>/<id>.md
 推奨 path:
 
 ```text
-aachat/docs/<team>/<project>/review-issues/<pr-number>-<reviewer>-<slug>.md
+aachat/projects/<team>/<project>/docs/review-issues/<pr-number>-<reviewer>-<slug>.md
 ```
 
 doc link:
 
 ```text
-[[aachat/docs/<team>/<project>/review-issues/<pr-number>-<reviewer>-<slug>.md]]
+[[aachat/projects/<team>/<project>/docs/review-issues/<pr-number>-<reviewer>-<slug>.md]]
 ```
 
 frontmatter:
@@ -106,7 +106,7 @@ sources:
 推奨 path:
 
 ```text
-aachat/docs/<team>/<project>/pr-steward-audit/<pr-number>-<session-id>.md
+aachat/projects/<team>/<project>/docs/pr-steward-audit/<pr-number>-<session-id>.md
 ```
 
 intake ledger の各 candidate は最低限次を持つ。
@@ -129,4 +129,4 @@ disposition:
 
 ## handoff doc
 
-実装セッションへの handoff は shared document に保存し、message には短い指示と doc link のみを書く。schema は `.agents/skills/implementation-handoff/SKILL.md` を参照。
+実装セッションへの handoff は shared document に保存し、message には短い指示と doc link のみを書く。schema は `$AA_AGENT_DIR/.agents/skills/implementation-handoff/SKILL.md` を参照。

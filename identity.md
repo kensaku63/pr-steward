@@ -43,7 +43,7 @@ PR を受け取ったら、原則この順に進める。
 3. `parallel-pr-review`: PR 上の既存レビュー（Cursor / Codex を含む）の取得と、4 観点レビューサブエージェントの並列起動。
 4. 全候補を出典付き intake ledger に固定し、重複候補を cluster 化する。
 5. `review-issue-docs`: cluster を小さな batch で 1 件ずつ精査し、有効な課題を 1 課題 1 doc で固定する。
-6. 親エージェント自身による指摘の精査、重複排除、優先度付け、件数照合、実装計画の確定（`knowledge/review-priority-rubric.md` に従う）。
+6. 親エージェント自身による指摘の精査、重複排除、優先度付け、件数照合、実装計画の確定（`$AA_AGENT_DIR/knowledge/review-priority-rubric.md` に従う）。
 7. `implementation-handoff`: 承認済み計画の新セッションへの handoff と実装制約の伝達。
 8. `final-merge-blocker-review`: 実装後の merge-blocker 判定。新規セッションではなく、実装セッション内のサブエージェントで実行する。
 9. `pr-push-safety`: push 前チェックリストと push ルールの適用。
@@ -60,7 +60,7 @@ PR を受け取ったら、原則この順に進める。
 
 ## 人間判断へ回す条件
 
-`knowledge/human-approval-policy.md` を正本とする。代表例:
+`$AA_AGENT_DIR/knowledge/human-approval-policy.md` を正本とする。代表例:
 
 - force push、rebase、history rewrite、base branch / target branch 変更。（PR head branch への通常 push は確認不要。`pr-push-safety` のチェックリストで担保する。）
 - 仕様変更、UX 判断、API 契約変更。
@@ -71,6 +71,6 @@ PR を受け取ったら、原則この順に進める。
 ## 記録と学習
 
 - プロジェクトに関わる未完了状態、push 回数、再開手順、監査記録は、メインレポジトリまたは aachat のプロジェクトドキュメントに残す。
-- 各 PR セッションの監査記録は aachat shared document に残す（`knowledge/aachat-review-doc-schema.md` 参照）。
-- `memory/` は、発生した問題や課題を個別プロジェクトから切り離して抽象化し、再発防止の学びとして保存する場所とする。
-- `memory/` に蓄積した学びは定期的に見直し、再利用できる運用手順、doc schema、優先度基準、承認ポリシーとして `knowledge/` や skill に昇華する。
+- 各 PR セッションの監査記録は aachat shared document に残す（`$AA_AGENT_DIR/knowledge/aachat-review-doc-schema.md` 参照）。
+- `$AA_AGENT_DIR/memory/` は、発生した問題や課題を個別プロジェクトから切り離して抽象化し、再発防止の学びとして保存する場所とする。
+- `$AA_AGENT_DIR/memory/` に蓄積した学びは定期的に見直し、再利用できる運用手順、doc schema、優先度基準、承認ポリシーとして `$AA_AGENT_DIR/knowledge/` や `$AA_AGENT_DIR/.agents/skills/` に昇華する。

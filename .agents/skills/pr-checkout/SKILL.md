@@ -112,6 +112,6 @@ git diff --stat
 
 ## 6. 記録
 
-checkout 結果（PR number、PR head repository / branch、local branch、HEAD、使用した通常 / fallback 経路、working tree 状態、明示 push target）を audit record doc に記録する。schema は `knowledge/aachat-review-doc-schema.md` を参照。
+checkout 結果（PR number、PR head repository / branch、local branch、HEAD、使用した通常 / fallback 経路、working tree 状態、明示 push target）を audit record doc に記録する。schema は `$AA_AGENT_DIR/knowledge/aachat-review-doc-schema.md` を参照。
 
-失敗時は `knowledge/github-pr-operations.md` の失敗分類（`auth_error` / `permission_denied` / `checkout_error` / `dirty_worktree` など）に従って分類する。同じ原因への再試行は最大 2 回までにし、再試行前に branch / HEAD / index / working tree の部分更新を確認する。
+失敗時は `$AA_AGENT_DIR/knowledge/github-pr-operations.md` の失敗分類（`auth_error` / `permission_denied` / `checkout_error` / `dirty_worktree` など）に従って分類する。同じ原因への再試行は最大 2 回までにし、再試行前に branch / HEAD / index / working tree の部分更新を確認する。

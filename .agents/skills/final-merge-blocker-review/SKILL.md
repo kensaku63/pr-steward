@@ -5,7 +5,7 @@ description: 実装後の PR に「マージを止める重大問題が残って
 
 # Final Merge-Blocker Review
 
-PR Steward workflow の Step 7。実装後の最終レビューは、改善点探しではなく「マージを止める重大問題が残っているか」の判定に限定する。
+PR Steward workflow の Step 8。実装後の最終レビューは、改善点探しではなく「マージを止める重大問題が残っているか」の判定に限定する。
 
 このレビューは **新規 session を起動せず、実装を行った session の中からサブエージェント（Agent tool）として実行する**。実装の文脈に引きずられない fresh context のレビュアーを 1 つ起動し、その判定を親（実装 session）が精査する。
 
@@ -43,7 +43,7 @@ PR Steward workflow の Step 7。実装後の最終レビューは、改善点�
 
 - blocker なし: `pr-push-safety` に進む。
 - blocker あり（修正可能・スコープ内・人間判断不要）: 親が修正し、再度サブエージェントでこの確認を行う。fix-and-push の回数上限（3 回）に注意する。
-- 判断不能な仕様問題が残る場合: push 前に停止して人間判断へ回す（`knowledge/human-approval-policy.md`）。
+- 判断不能な仕様問題が残る場合: push 前に停止して人間判断へ回す（`$AA_AGENT_DIR/knowledge/human-approval-policy.md`）。
 
 ## 5. 記録
 

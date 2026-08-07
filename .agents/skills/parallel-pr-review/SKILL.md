@@ -18,7 +18,7 @@ PR Steward workflow の Step 3。親エージェントは、まず GitHub PR 上
 
 取得時に reviewer を人間だけへ限定しない。Cursor / Codex が投稿した review、summary、inline comment も必ず候補集合へ含める。bot 名を固定値で決め打ちせず、GitHub の `author.login`、app/bot metadata、comment URL / ID を保存する。Cursor / Codex と判定できない投稿は `unknown` のまま残し、推測で帰属させない。
 
-取得方法と必要 field は `knowledge/github-pr-operations.md` の「既存 PR レビューの取得」を正本とする。
+取得方法と必要 field は `$AA_AGENT_DIR/knowledge/github-pr-operations.md` の「既存 PR レビューの取得」を正本とする。
 
 各投稿は audit record の intake ledger に、最低限次を記録する。
 
@@ -85,11 +85,11 @@ PR Steward workflow の Step 3。親エージェントは、まず GitHub PR 上
 - 指摘は、観測した事実、直す価値、十分な解決状態、最適な解決方針が説明できるものに限定する。
 - style、命名、好み、軽微なリファクタは、マージ判断に影響しない限り出力しない。
 - 長文成果物は message に書かず、まず audit record の intake ledger に candidate として固定する。
-- candidate の段階では review issue doc を量産しない。親エージェントが有効と確認した unique cluster だけを、課題 1 件につき 1 doc へ昇格する。doc の path と schema は `review-issue-docs` skill と `knowledge/aachat-review-doc-schema.md` に従う。
+- candidate の段階では review issue doc を量産しない。親エージェントが有効と確認した unique cluster だけを、課題 1 件につき 1 doc へ昇格する。doc の path と schema は `review-issue-docs` skill と `$AA_AGENT_DIR/knowledge/aachat-review-doc-schema.md` に従う。
 - 各課題は「何が問題か」だけで終えず、「なぜ今直すべきか」「どの状態になれば十分か」「どう解決するのが最適か」「なぜそれが最適か」まで書く。
 - 書けない項目を無理に埋めない。確認できていない内容は `未確認` と明記する。
 - `ありそう`、`可能性がある` だけの課題は、直す価値または最適な解決方針まで具体化できない限り課題化しない。
-- テスト不足は単独では課題にしない。追加すべきテストがあると主張する場合は、守るべき振る舞い、壊れやすい変更点、既存テストでは検知できない理由、最小のテスト形態を明示する（`knowledge/review-priority-rubric.md` のテスト指摘採用基準を参照）。
+- テスト不足は単独では課題にしない。追加すべきテストがあると主張する場合は、守るべき振る舞い、壊れやすい変更点、既存テストでは検知できない理由、最小のテスト形態を明示する（`$AA_AGENT_DIR/knowledge/review-priority-rubric.md` のテスト指摘採用基準を参照）。
 - 既存 PR レビューと同じ指摘を見つけた場合も削除せず、同じ cluster に source を追加する。どの reviewer が先に指摘したかを失わない。
 
 ## 3. サブエージェントへ渡す入力
@@ -108,4 +108,4 @@ PR Steward workflow の Step 3。親エージェントは、まず GitHub PR 上
 - GitHub PR の既存レビュー取得が完了し、Cursor / Codex を含む全投稿の candidate ID と source が intake ledger にある。
 - 4 観点すべてのサブエージェントが完了し、その全候補が intake ledger に追記されている。
 - 明らかな同一指摘を cluster 化しても、元 candidate ID と source が失われていない。
-- candidate 総数と `untriaged` 件数を audit record doc に記録してから、親エージェントの batch 精査（`knowledge/review-priority-rubric.md`）に進む。
+- candidate 総数と `untriaged` 件数を audit record doc に記録してから、親エージェントの batch 精査（`$AA_AGENT_DIR/knowledge/review-priority-rubric.md`）に進む。

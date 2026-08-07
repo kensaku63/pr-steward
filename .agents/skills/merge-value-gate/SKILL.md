@@ -41,7 +41,7 @@ PR Steward workflow の Step 2。PR を後続の自動レビュー・修正フ�
 - `reject` / `needs-human` の場合のみ、GitHub PR コメントに結論を投稿する。`pass` はコメント不要。
 - reject コメントは事実ベースの理由、確認した証拠、再提出条件を最大 3 件で簡潔に書く。
 - 作者の意図・能力への評価、証拠のない推測、secret の値そのものは書かない。
-- `needs-human` の場合は、人間に選択してほしい判断事項と選択肢ごとの影響を asks に書く（`knowledge/human-approval-policy.md` 参照）。
+- `needs-human` の場合は、人間に選択してほしい判断事項と選択肢ごとの影響を asks に書く（`$AA_AGENT_DIR/knowledge/human-approval-policy.md` 参照）。
 
 ## 5. 次のステップ
 

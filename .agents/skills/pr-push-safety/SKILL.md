@@ -5,7 +5,7 @@ description: PR head branch への push 前チェックリストと push ルー�
 
 # PR Push Safety
 
-PR Steward workflow の Step 8。push は安全確認をすべて満たした場合のみ行う。
+PR Steward workflow の Step 9。push は安全確認をすべて満たした場合のみ行う。
 
 ## 1. push 前チェックリスト
 
@@ -24,8 +24,8 @@ push 前に次を必ず確認する。1 つでも満たせない場合は push �
 
 - PR head branch への通常 push（非破壊・fast-forward）は、§1 チェックリストを満たせば**人間の都度確認なしで steward 裁量で実行する**。初回 push でも確認しない。
 - force push は既定禁止。人間が明示承認した場合だけ許可する。
-- 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回までとする。回数を `memory/` に記録し、上限に達したら停止して人間に報告する（runaway 防止の backstop であり、push ごとの確認ではない）。
-- maintainer 以外の branch への push は人間の明示承認が必要（`knowledge/human-approval-policy.md`）。
+- 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回までとする。回数を `$AA_AGENT_DIR/memory/` に記録し、上限に達したら停止して人間に報告する（runaway 防止の backstop であり、push ごとの確認ではない）。
+- maintainer 以外の branch への push は人間の明示承認が必要（`$AA_AGENT_DIR/knowledge/human-approval-policy.md`）。
 
 ## 3. push 失敗時
 
@@ -37,5 +37,5 @@ push 前に次を必ず確認する。1 つでも満たせない場合は push �
 ## 4. push 後
 
 - push した commit hash を audit record doc に記録する。
-- PR 参加者が確認すべき挙動変更、残リスク、未解決事項がある場合のみ、GitHub PR コメントに簡潔に投稿する（`knowledge/github-pr-operations.md` のコメントポリシーに従う）。
+- PR 参加者が確認すべき挙動変更、残リスク、未解決事項がある場合のみ、GitHub PR コメントに簡潔に投稿する（`$AA_AGENT_DIR/knowledge/github-pr-operations.md` のコメントポリシーに従う）。
 - 中断・停止した場合は branch、未コミット差分、完了済み作業、未完了作業、再開手順を shared document に記録する。

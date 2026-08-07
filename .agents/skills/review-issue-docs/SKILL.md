@@ -5,7 +5,7 @@ description: レビュー課題を課題 1 件につき 1 つの aachat shared d
 
 # Review Issue Docs
 
-レビュー課題を aachat shared document として固定するときの規約。schema の正本は `knowledge/aachat-review-doc-schema.md`。
+レビュー課題を aachat shared document として固定するときの規約。schema の正本は `$AA_AGENT_DIR/knowledge/aachat-review-doc-schema.md`。
 
 ## 1. 作成ルール
 
@@ -15,13 +15,13 @@ description: レビュー課題を課題 1 件につき 1 つの aachat shared d
 path:
 
 ```text
-aachat/docs/<team>/<project>/review-issues/<pr-number>-<reviewer>-<slug>.md
+aachat/projects/<team>/<project>/docs/review-issues/<pr-number>-<reviewer>-<slug>.md
 ```
 
 doc link:
 
 ```text
-[[aachat/docs/<team>/<project>/review-issues/<pr-number>-<reviewer>-<slug>.md]]
+[[aachat/projects/<team>/<project>/docs/review-issues/<pr-number>-<reviewer>-<slug>.md]]
 ```
 
 ## 2. frontmatter
@@ -51,7 +51,7 @@ sources:
 
 - `reviewer_role` は `outcome_gap`、`ux_friction`、`code_quality`、`release_hardening` のいずれか。
 - `severity` / `confidence` は `low` / `medium` / `high`。
-- `priority` は `p0` / `p1` / `p2` / `p3` / `defer`（基準は `knowledge/review-priority-rubric.md`）。
+- `priority` は `p0` / `p1` / `p2` / `p3` / `defer`（基準は `$AA_AGENT_DIR/knowledge/review-priority-rubric.md`）。
 - `merge_blocker` はマージを止めるべき課題のときだけ `true`。
 - `sources` には元 candidate ID、kind、author、URL / comment ID を残す。Cursor / Codex / 人間 / 並列 reviewer の複数指摘を統合した場合も、全 source を保持する。
 
