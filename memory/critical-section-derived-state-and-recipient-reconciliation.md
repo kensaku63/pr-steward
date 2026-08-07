@@ -1,0 +1,9 @@
+# Critical-section derived state and recipient reconciliation
+
+## Lock-protected recovery decisions
+
+並行処理を直列化するときは、mutationだけでなくmutation要否を決めるderived stateもlock取得後に評価する。markerの有無をlock待機前にboolへ固定すると、先行処理がmarkerを解消した後も待機側がstaleな判断で再wipeできる。明示された利用者intentは保持し、共有state由来の判断だけをcritical section内で再計算する。
+
+## Denormalized recipient state
+
+同じrow shapeが複数の通知理由を表す場合、個別理由のadd/remove差分だけでは整合しない。DM signalのようにexplicit mentionとimplicit membershipが一つのsignalを共有するなら、edit後の期待recipient集合を全sourceの和集合から計算し、既存rowをsurvive/update/delete/createへ収束させる。対象queryもそのbounded recipient集合を起点にすると、正しさと既存recipient index利用を同時に満たせる。
