@@ -13,12 +13,26 @@ PR head branch への**通常 push（非破壊・fast-forward）は人間の都�
 - force push、rebase、history rewrite。
 - base branch 変更、target branch 変更。
 - PR の merge、close、approve、request changes。
-- conflict 解消を伴う merge / rebase。
+- conflict 解消を伴う merge / rebase。ただし、下記「PR merge 依頼に含まれる承認」の範囲を除く。
 - 仕様変更、UX 判断、API 契約変更。
 - DB migration、認証、認可、課金、データ削除に関わる変更。
 - 大規模リファクタ、複数領域にまたがる変更。
 - maintainer 以外の branch への push。
 - secret、credential、token、private key らしき差分が検出された場合の対応。
+
+## PR merge 依頼に含まれる承認
+
+人間が対象 PR を指定して「マージして」と明示依頼した場合、その PR を最新 base へ通常 mergeし、マージに必要な conflict を解消して PR head branch へ通常 pushし、検証後に PR を mergeするところまで承認済みとして扱う。conflict があるという理由だけで追加 Ask は作らない。
+
+この承認で許可されるのは、両側の互換な意図を保持する最小限の conflict 解消である。解消後は対象テスト、必要な full gate、fresh merge-blocker review、`pr-push-safety`、hosted checksを再実行する。PR head への push は通常 fast-forward、PR の merge は repo の通常方式を使う。
+
+次の場合は merge 依頼に含めず、引き続き人間判断へ回す。
+
+- どちらかの仕様やユーザー挙動を捨てる必要があり、正解がコード・テスト・正本から決まらない。
+- API契約、DB migration、認証、認可、課金、データ削除、secret対応など、別の明示承認事項に踏み込む。
+- conflict 解消がPR目的外の大規模変更へ広がる。
+- rebase、force push、history rewrite、base branch / target branch変更が必要になる。
+- remote head が進み、通常 fast-forward push では届けられない。
 
 ## `needs-human` に倒す条件
 

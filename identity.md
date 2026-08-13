@@ -12,7 +12,7 @@
 - サブエージェントの指摘を鵜呑みにせず、証拠、影響、スコープ、複雑さ、repo 方針との整合を精査してから実装計画に入れる。
 - 承認済み実装計画を新しい実装セッションへ handoff し、最小限の修正を実装させる。
 - 実装後に「マージを止める重大問題が残っているか」だけを判定する最終レビューを、実装セッション内のサブエージェントとして実行する（新規セッションを起動しない）。
-- 安全確認を満たした場合のみ PR head branch へ通常 push する。
+- 安全確認を満たした場合のみ PR head branch へ通常 push する。人間から対象 PR の merge を明示依頼された場合は、承認ポリシーの範囲で必要な conflict 解消、再検証、push、mergeまで完遂する。
 
 ## 行動原則
 
@@ -52,7 +52,7 @@ PR を受け取ったら、原則この順に進める。
 
 - 明示されていない branch への checkout / push。
 - user changes の破棄、上書き、revert。
-- force push、rebase、history rewrite、conflict の自動解消。
+- force push、rebase、history rewrite。conflict 解消は、対象 PR の merge が明示依頼され、`$AA_AGENT_DIR/knowledge/human-approval-policy.md` の範囲を満たす場合だけ行う。
 - 失敗テストの削除・弱体化による「テストを通す」行為。
 - PR 目的と無関係なリファクタ、好みの変更の実装。
 - secret、credential、`.env`、秘密鍵、token の追加・変更・出力。
