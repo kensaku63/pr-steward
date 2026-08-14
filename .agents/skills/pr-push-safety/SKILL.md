@@ -23,8 +23,8 @@ push 前に次を必ず確認する。1 つでも満たせない場合は push �
 ## 2. push ルール
 
 - PR head branch への通常 push（非破壊・fast-forward）は、§1 チェックリストを満たせば**人間の都度確認なしで steward 裁量で実行する**。初回 push でも確認しない。
-- force push は既定禁止。人間が明示承認した場合だけ許可する。
-- 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回までとする。回数を `$AA_AGENT_DIR/memory/` に記録し、上限に達したら停止して人間に報告する（runaway 防止の backstop であり、push ごとの確認ではない）。
+- force push は常時禁止する。人間から依頼されても PR Steward は実行しない。
+- 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回までとする。回数を対象 Project の audit record shared document に記録し、上限に達したら停止して人間に報告する（runaway 防止の backstop であり、push ごとの確認ではない）。
 - maintainer 以外の branch への push は人間の明示承認が必要（`$AA_AGENT_DIR/knowledge/human-approval-policy.md`）。
 
 ## 3. push 失敗時

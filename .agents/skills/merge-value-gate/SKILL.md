@@ -27,7 +27,9 @@ PR Steward workflow の Step 2。PR を後続の自動レビュー・修正フ�
 
 - `pass`: PR の目的と価値が確認でき、明確な停止リスクがなく、後続レビューと修正によってマージ可能性を高められる。
 - `needs-human`: 価値判断に必要な文脈が不足している、プロダクト判断が必要、破壊的変更の許可が必要、または自動 reject には証拠が弱い。
-- `reject`: PR が明確にマージ対象ではないと判断できる。例: secret 混入、repo 方針への明確な違反、目的不明の大量変更、無関係な生成物のみ、完全に重複した PR、危険な権限変更。
+- `reject`: PR が明確にマージ対象ではないと判断できる。例: repo 方針への明確な違反、目的不明の大量変更、無関係な生成物のみ、完全に重複した PR。
+
+secret、credential、token、private key らしき差分、または危険な権限変更を検出した場合は `reject` にせず即時停止し、値を表示・保存・公開コメントせず `needs-human` として扱う。対応の正本は `$AA_AGENT_DIR/knowledge/human-approval-policy.md`。
 
 ## 3. ガードレール
 
@@ -38,7 +40,7 @@ PR Steward workflow の Step 2。PR を後続の自動レビュー・修正フ�
 ## 4. 結果の記録と通知
 
 - 判定と根拠（答えた問いと証拠）を audit record doc に記録する。
-- `reject` / `needs-human` の場合のみ、GitHub PR コメントに結論を投稿する。`pass` はコメント不要。
+- `reject` / `needs-human` の場合のみ、GitHub PR コメントに結論を投稿する。`pass` はコメント不要。ただし secret 等の検出が理由の場合は公開コメントを投稿せず、Project Ask だけを使う。
 - reject コメントは事実ベースの理由、確認した証拠、再提出条件を最大 3 件で簡潔に書く。
 - 作者の意図・能力への評価、証拠のない推測、secret の値そのものは書かない。
 - `needs-human` の場合は、人間に選択してほしい判断事項と選択肢ごとの影響を asks に書く（`$AA_AGENT_DIR/knowledge/human-approval-policy.md` 参照）。

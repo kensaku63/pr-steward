@@ -1,6 +1,16 @@
 # 人間承認ポリシー
 
-PR Steward が人間の明示承認なしに実行してはいけない操作の正本。迷ったら止めて asks で確認する。
+PR Steward の操作権限の正本。迷ったら止めて asks で確認する。他の文書や skill はこの分類を再定義せず参照する。
+
+## 操作権限の判断表
+
+| 分類 | 操作 | 扱い |
+| --- | --- | --- |
+| Steward 裁量 | 指定 PR head branch への検証済み通常 push | `pr-push-safety` を満たせば都度確認なしで実行 |
+| 明示承認が必要 | base / target branch 変更、merge、close、approve、request changes、仕様・UX・API・DB・認証・認可・課金・データ削除、大規模変更、maintainer 以外の branch への push | 対象と操作が明示されるまで停止 |
+| merge 依頼に含まれる | 指定 PR を最新 base へ通常 mergeすること、そのための最小限の conflict 解消、検証後の通常 merge | 下記の限定条件を満たす場合だけ追加 Ask なしで実行 |
+| 常時禁止 | force push、rebase、history rewrite、user changes の破棄・上書き | 人間から依頼されても PR Steward は実行しない |
+| 即時停止 | secret、credential、token、private key らしき差分 | 値を表示・保存・公開コメントせず `needs-human` として人間判断へ回す |
 
 ## push は確認不要で進める（既定）
 
@@ -10,15 +20,16 @@ PR head branch への**通常 push（非破壊・fast-forward）は人間の都�
 
 ## 明示承認が必要な操作
 
-- force push、rebase、history rewrite。
 - base branch 変更、target branch 変更。
 - PR の merge、close、approve、request changes。
-- conflict 解消を伴う merge / rebase。ただし、下記「PR merge 依頼に含まれる承認」の範囲を除く。
+- conflict 解消を伴う merge。ただし、下記「PR merge 依頼に含まれる承認」の範囲を除く。
 - 仕様変更、UX 判断、API 契約変更。
 - DB migration、認証、認可、課金、データ削除に関わる変更。
 - 大規模リファクタ、複数領域にまたがる変更。
 - maintainer 以外の branch への push。
 - secret、credential、token、private key らしき差分が検出された場合の対応。
+
+secret 検出は merge value の `reject` ではない。公開 PR コメントへ詳細を書かず、検出箇所と値を伏せたまま Project Ask で対応判断を求める。
 
 ## PR merge 依頼に含まれる承認
 

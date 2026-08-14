@@ -51,10 +51,11 @@ aachat session run pr-steward --project <project> "https://github.com/<owner>/<r
 
 ## 安全方針
 
-- force push、rebase、history rewrite、conflict の自動解消は行わない。
+- force push、rebase、history rewrite は行わない。
+- conflict 解消は、対象 PR を指定した明示的な merge 依頼に含まれる最小限の解消だけを許可する。それ以外は停止する。
 - PR の merge / close / approve / request changes は人間の明示承認が必要。
 - 仕様変更、UX 判断、API 契約変更、DB migration、認証・認可・課金・データ削除に関わる変更は人間判断へ回す。
-- secret、credential らしき差分を検出したら停止する。
+- secret、credential らしき差分を検出したら、`reject` や公開コメントへ進まず即時停止して人間判断へ回す。値は出力しない。
 - 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回まで。
 
 詳細は `$AA_AGENT_DIR/knowledge/human-approval-policy.md` を参照してください。
@@ -63,9 +64,20 @@ aachat session run pr-steward --project <project> "https://github.com/<owner>/<r
 
 - `identity.md`: エージェントの役割、行動原則、workflow と skill の対応の正本。
 - `environment.yaml`: 必要な実行環境。依存は `config.packages` に、必要な env 名は `config.env[]` に書く。
-- `$AA_AGENT_DIR/memory/`: session 間で引き継ぐ未完了状態、push 回数、再開手順。
+- `$AA_AGENT_DIR/memory/`: 個別 project から切り離して再利用できる経験、観察、未解決の仮説。PR 固有の未完了状態や push 回数は置かない。
 - `$AA_AGENT_DIR/knowledge/`: GitHub PR 操作手順、レビュー doc schema、優先度基準、人間承認ポリシー。
 - `$AA_AGENT_DIR/.agents/skills/`: この agent 専用の実行時 skill。Discovery の子 skill カタログもここを優先して見る。
+- `$AA_AGENT_DIR/scripts/check.sh`: agent repo の必須構造、skill metadata、正本参照、PR 固有状態の混入を検査する read-only check。
+
+PR 固有の未完了状態、push 回数、再開手順、監査記録は、対象 Project の audit record shared document に残します。
+
+## Repository check
+
+```bash
+bash "$AA_AGENT_DIR/scripts/check.sh"
+```
+
+この check はファイルを変更せず、構造・参照・方針の既知のドリフトを検出します。
 
 ## 実行時 Skill
 

@@ -101,7 +101,7 @@ git diff --stat
 - 通常経路では pull は fast-forward のみ許可する: `git pull --ff-only`
 - fallback 経路では同じ session 専用 ref へ再 fetch し、OID を照合してから `git merge --ff-only <session-ref>` で更新する。
 - merge commit、rebase、history rewrite は自動実行しない。
-- conflict が出たら自動解消せず停止する。
+- 通常の review / fix workflow で conflict が出たら解消せず停止する。対象 PR の明示的な merge 依頼がある場合は、`$AA_AGENT_DIR/knowledge/human-approval-policy.md` の限定条件に従い、必要な再検証を行う。
 
 ## 禁止事項
 

@@ -15,21 +15,21 @@ checkout の実行手順は `$AA_AGENT_DIR/.agents/skills/pr-checkout/SKILL.md` 
 - `git worktree list --porcelain` で PR head branch が別 worktree に占有されていないか、`gh pr checkout` より先に確認する。
 - 別 worktree が使用中なら、その worktree を変更せず、PR の `refs/pull/<number>/head` から session 専用 local branch を upstream なしで作る。
 - checkout 後に `git branch --show-current`、tracking branch、base branch、PR head を再確認する。
-- 更新は fast-forward のみ許可する。merge commit、rebase、history rewrite は自動実行しない。
+- 通常の review / fix workflow で更新を取り込むときは fast-forward のみ許可する。明示的な PR merge 依頼の例外は `$AA_AGENT_DIR/knowledge/human-approval-policy.md` を正本とする。
 
 禁止事項:
 
 - 明示されていない branch への checkout / push。
 - user changes の破棄、上書き、revert。
-- force push、rebase、history rewrite。
+- force push、rebase、history rewrite。人間から依頼されても PR Steward は実行しない。
 
 ## push ルール
 
 push 前チェックは `$AA_AGENT_DIR/.agents/skills/pr-push-safety/SKILL.md` を正本とする。
 
 - 通常 push のみ許可する。
-- force push は既定禁止。人間が明示承認した場合だけ許可する。
-- 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回までとする。回数は `$AA_AGENT_DIR/memory/` に記録する。
+- force push は常時禁止する。
+- 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回までとする。回数は対象 Project の audit record shared document に記録する。
 - push 失敗時は原因を分類し、勝手に force push しない。
 
 ## GitHub コメントポリシー
@@ -124,7 +124,7 @@ GitHub の fine-grained personal access token では、Checks API の資料が `
 
 - transient failure の自動再試行は最大 2 回まで。
 - 同じ失敗が続く場合は停止し、現在状態、原因仮説、次アクションを記録する。
-- conflict は原則自動解消しない。
+- conflict は通常 workflow では解消せず停止する。対象 PR の明示的な merge 依頼がある場合だけ、`$AA_AGENT_DIR/knowledge/human-approval-policy.md` の限定条件に従う。
 - CI 失敗は、自分の変更起因か、既存失敗か、flaky / infra / permission / external service かを分類する。
 - 不明な CI 失敗を解消するために無制限な修正 push を繰り返さない。
 - 中断時は branch、未コミット差分、完了済み作業、未完了作業、再開手順を aachat shared document に記録する。

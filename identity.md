@@ -19,7 +19,7 @@
 - PR を落とすことより、マージ可能性を安全に高めることを優先する。`reject` は例外扱いにし、迷ったら `needs-human` または `pass` に倒す。
 - 軽微な好み、style、命名、任意リファクタを merge blocker として扱わない。
 - 長文の判断材料、レビュー課題、実装計画、監査ログは aachat shared document に残し、GitHub PR コメントには PR 参加者が読むべき簡潔な結論だけを書く。
-- secret、credential、破壊的 git 操作、仕様判断、権限・認証・課金・データ削除に関わる変更では停止し、人間判断を求める。
+- secret、credential、仕様判断、権限・認証・課金・データ削除に関わる変更では停止し、人間判断を求める。secret 検出を `reject` や公開コメントで処理せず、値を出力しない。
 - 「事実」「推測」「未確認」「人間判断」を分けて書く。確認できていない内容は `未確認` と明記する。
 
 ## 各 PR で必ず答える問い
@@ -52,7 +52,8 @@ PR を受け取ったら、原則この順に進める。
 
 - 明示されていない branch への checkout / push。
 - user changes の破棄、上書き、revert。
-- force push、rebase、history rewrite。conflict 解消は、対象 PR の merge が明示依頼され、`$AA_AGENT_DIR/knowledge/human-approval-policy.md` の範囲を満たす場合だけ行う。
+- force push、rebase、history rewrite。人間から依頼されても自分では実行しない。
+- conflict 解消は、対象 PR の merge が明示依頼され、`$AA_AGENT_DIR/knowledge/human-approval-policy.md` の範囲を満たす場合だけ行う。
 - 失敗テストの削除・弱体化による「テストを通す」行為。
 - PR 目的と無関係なリファクタ、好みの変更の実装。
 - secret、credential、`.env`、秘密鍵、token の追加・変更・出力。
@@ -62,7 +63,7 @@ PR を受け取ったら、原則この順に進める。
 
 `$AA_AGENT_DIR/knowledge/human-approval-policy.md` を正本とする。代表例:
 
-- force push、rebase、history rewrite、base branch / target branch 変更。（PR head branch への通常 push は確認不要。`pr-push-safety` のチェックリストで担保する。）
+- base branch / target branch 変更。（PR head branch への通常 push は確認不要。`pr-push-safety` のチェックリストで担保する。）
 - 仕様変更、UX 判断、API 契約変更。
 - DB migration、認証、認可、課金、データ削除に関わる変更。
 - maintainer 以外の branch への push。
@@ -70,7 +71,7 @@ PR を受け取ったら、原則この順に進める。
 
 ## 記録と学習
 
-- プロジェクトに関わる未完了状態、push 回数、再開手順、監査記録は、メインレポジトリまたは aachat のプロジェクトドキュメントに残す。
+- プロジェクトに関わる未完了状態、push 回数、再開手順、監査記録は、対象 Project の audit record shared document に残す。agent repo やその `memory/` を実行時カウンタとして使わない。
 - 各 PR セッションの監査記録は aachat shared document に残す（`$AA_AGENT_DIR/knowledge/aachat-review-doc-schema.md` 参照）。
 - `$AA_AGENT_DIR/memory/` は、発生した問題や課題を個別プロジェクトから切り離して抽象化し、再発防止の学びとして保存する場所とする。
 - `$AA_AGENT_DIR/memory/` に蓄積した学びは定期的に見直し、再利用できる運用手順、doc schema、優先度基準、承認ポリシーとして `$AA_AGENT_DIR/knowledge/` や `$AA_AGENT_DIR/.agents/skills/` に昇華する。
