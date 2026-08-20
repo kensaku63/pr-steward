@@ -25,8 +25,10 @@ aachat/projects/<team>/<project>/docs/pr-steward-handoff/<pr-number>-fix-plan.md
 加えて、次を含めることを推奨する:
 
 - base branch / head branch / 作業時の HEAD
+- この PR が守る最小のユーザー価値と、十分な解決状態
 - approved fix plan（採用課題、優先度、実装順序）
 - 修正ごとの変更箇所、期待挙動、検証方法
+- simplicity budget（追加を認める永続状態、正本、状態遷移、公開 API、caller protocol。人間の明示承認がなければすべて `none`。一般的な plan 承認ではなく、人間が各 architecture delta を明記して承認した場合だけ承認済みとみなす）
 - 実行すべき lint / typecheck / test / build コマンド
 - 実装セッションへの制約（次節をそのまま記載する）
 
@@ -36,12 +38,15 @@ handoff doc に次の制約を明記し、実装セッションに遵守させ�
 
 - approved fix plan に含まれる修正だけを実装する。
 - 指摘を解決するために必要な最小限の周辺変更は許可する。
+- レビュー指摘を要件として再解釈しない。handoff に書かれたユーザー価値と十分な解決状態を、既存の正本・責務を保つ最小変更で満たす。
+- simplicity budget にない永続状態、第二の正本、状態機械、公開 API、複数 caller の protocol を追加しない。
 - repo の既存パターンに沿ったテスト追加・更新は許可する。
 - PR 目的と無関係なリファクタは禁止する。
 - 仕様、UX、API 契約を独断で変えない。
 - secret、credential、`.env`、秘密鍵、token を追加・変更しない。
 - 失敗テストを削除・弱体化して通さない。
 - approved plan が誤り、不完全、危険、人間判断が必要と判明したら停止して報告する。
+- 実装中の修正が新しい race や不整合を作り、nonce、CAS、fence、例外分岐など次の防御を必要としたら、その防御を足さず停止する。元の修正を削る・戻す簡素化案とともに再計画を求める。
 
 ## 3. 新しい実装セッションを起動する
 
@@ -78,6 +83,7 @@ chat session finish
 
 - 作業前に current branch と working tree を確認する。
 - 変更は最小限に保つ。
+- 作業開始時と各 blocker 修正前に architecture delta を simplicity budget と照合する。budget を超える場合は実装を続けない。
 - 既存パターン、既存 helper、repo のテスト方針を優先する。
 - 修正ごとに関連する review issue doc を更新する（`review-issue-docs` skill 参照）。
 - 必要な lint、typecheck、test、build を実行する。

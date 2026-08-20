@@ -19,6 +19,26 @@
 
 GitHub PR 上の Cursor / Codex / 人間 reviewer の指摘にも、同じ基準を適用する。author や review tool の評判を根拠に採否を決めない。
 
+## Simplicity hard gate
+
+レビュー指摘の事実性と、その指摘で提案された解法の妥当性は別々に判定する。正しい指摘でも、提案解法をそのまま要件化しない。
+
+accepted にする前に、cluster ごとに次を明記する。
+
+1. 守るユーザー価値と十分な解決状態。
+2. 問題を生んだ責務・不変条件。既存の正本へ戻す、変更を消す、元の単純な設計を保つ方法がないか。
+3. 解法の architecture delta。新しい永続状態、正本、状態遷移、公開 API、caller が守る手順、変更経路が増えるか。
+4. 最小解との比較。architecture delta がある案は、それがプロダクト要件から直接必要で、より小さい案では十分な解決状態を満たせない具体的な挙動比較がある場合だけ採用する。「必要」「他にない」という説明だけは証拠にしない。
+
+次のいずれかに該当したら、個別 guard を追加して計画を確定せず、`defer` または `needs-human` として簡素化を再計画する。
+
+- 下書き控えのために送信 lifecycle を持つ、表示補助のために第二の正本を持つなど、補助機構が本体の責務を引き受ける。
+- 複数 caller が `begin / accept / reject` のような内部 protocol を知る必要が生じる。
+- ある修正が作った race や不整合を、別の nonce、CAS、fence、例外分岐で塞ぐ必要が生じる。
+- テストがユーザー契約ではなく、特定の関数呼び出し順や実装文字列を固定し始める。
+
+複雑な解法を却下しても、元の candidate は失わない。ledger には「指摘は有効だが解法は過剰」「より小さい設計へ再計画」のように、症状と解法を分けて disposition を残す。
+
 ## 認知負荷を超えない精査手順
 
 親エージェントは全指摘を一度の prompt / 判断で処理しない。
@@ -26,7 +46,7 @@ GitHub PR 上の Cursor / Codex / 人間 reviewer の指摘にも、同じ基準
 1. まず全 candidate を lossless に intake ledger へ固定し、source と stable ID を付ける。
 2. 同じ根本原因・失敗条件・修正対象を持つ candidate を cluster 化する。cluster 化は整理であり、採否判断ではない。
 3. 原則最大 5 cluster の batch に分ける。P0候補、security、認証、データ破壊は 1 cluster ずつ扱う。
-4. 各 cluster について、必要な diff・仕様・テスト・実行証拠だけを読み直し、この checklist で disposition を決める。
+4. 各 cluster について、必要な diff・仕様・テスト・実行証拠だけを読み直し、この checklist と simplicity hard gate で disposition を決める。
 5. batch ごとに ledger と issue doc を更新して判断を外部化し、未処理件数を再計算してから次へ進む。
 6. 全 batch 後に横断重複と優先度の整合だけを別 pass で確認する。個別課題の詳細判定と全体最適化を同時に行わない。
 
