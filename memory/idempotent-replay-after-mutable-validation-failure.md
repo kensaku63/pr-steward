@@ -23,3 +23,13 @@ If a concurrent request has acquired the idempotency advisory lock but has not c
 - Confirm that the same nonce with a different canonical hash still returns the existing conflict response.
 
 This pattern applies whenever idempotent acceptance competes with mutable authorization, availability, or existence checks.
+
+## External side effects before acceptance
+
+The same ordering rule applies to storage uploads, message sends, and other external side effects. A replay preflight must happen before the side effect; otherwise an already accepted retry can fail only because the external dependency is currently unavailable, or can repeat a non-transactional effect.
+
+For concurrent requests using the same nonce, serialize before the first external side effect when duplicate effects are not acceptable. After acquiring the nonce lock, re-read the authoritative replay row and return it before touching the external dependency. Keep canonical actor/hash mismatch checks on every replay path so the shortcut cannot weaken idempotency identity validation.
+
+## Small-pool transaction trap
+
+Do not call a helper that reacquires a pooled connection while an acceptance transaction already owns the only connection. This can self-deadlock with a pool size of one even when the SQL is otherwise correct. Provide a transaction-aware helper or register the derived row directly through the existing transaction, and add a pool-size-one regression test for the full route.
