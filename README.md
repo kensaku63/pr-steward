@@ -89,23 +89,16 @@ bash "$AA_AGENT_DIR/scripts/check.sh"
 - `final-merge-blocker-review`: 実装後の merge-blocker 限定レビュー（実装セッション内のサブエージェントで実行）。
 - `pr-push-safety`: push 前チェックリストと push ルール。
 
-## 必要な権限と env
+## 必要な GitHub CLI 認証と権限
 
-GitHub 操作には `gh` CLI を使います。session 環境で `gh auth status` が通る状態、または `GH_TOKEN` が解決できる状態にしてください。
+GitHub 操作には、owner machine の GitHub CLI に保存されている active account を使います。session を起動する前に `gh auth status` が成功し、意図した member account が active であることを確認してください。その member には対象 repository の read / write 権限と、organization が要求する場合は有効な SSO 承認が必要です。
 
-```yaml
-# environment.yaml
-config:
-  env:
-    - name: GH_TOKEN
-      purpose: GitHub API access for gh CLI (PR view / checkout / comment / push)
-```
+認証、権限、SSO のいずれかで失敗した場合は、その operation で停止し、member が通常の GitHub CLI 認証または権限を修復します。agent は provider token の選択、作成、差し替え、fallback を行いません。
 
 ## 注意
 
 secret、token、JWT、PAT、秘密鍵は repo に含めないでください。
-secret が必要なときは `environment.yaml` の `config.env[]` に env 名だけを書きます。
-値・provider ref・ローカルパスは `~/aachat/.state/env.toml` などローカル設定にだけ置き、repo には含めません。
+PR Steward の GitHub 操作用 credential を `environment.yaml` や repo 内文書へ追加しないでください。credential の管理と active account の選択は member の通常の GitHub CLI 認証に委ねます。
 
 `description_ja` / `description_en` は Discovery submit 時の入力であり、repo 内の固定ファイルではありません。
 

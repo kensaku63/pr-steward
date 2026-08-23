@@ -5,6 +5,4 @@ config:
     apt: [gh, jq]
   networking:
     type: unrestricted
-  env:
-    - name: GH_TOKEN
-      purpose: GitHub API access for gh CLI (PR view / checkout / comment / push)
+  env: []

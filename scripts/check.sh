@@ -105,6 +105,12 @@ if grep -n -F -e '例: secret 混入' -e '例: credential 混入' \
   fail "merge-value gate still classifies secret detection as automatic reject"
 fi
 
+if grep -R -n -E -e 'GH_TOKEN' -e 'GITHUB_TOKEN' -e 'env -u GH_TOKEN' \
+  "$repo_root/README.md" "$repo_root/environment.yaml" "$repo_root/identity.md" \
+  "$repo_root/knowledge" "$repo_root/.agents/skills" >/dev/null; then
+  fail "agent-facing surface declares or recommends a GitHub environment credential"
+fi
+
 if [[ -d "$repo_root/.git" || -f "$repo_root/.git" ]]; then
   git -C "$repo_root" diff --check || fail "git diff --check reported whitespace errors"
 fi

@@ -95,16 +95,11 @@ thread の resolution と current/outdated 状態が必要な場合は、`gh api
 - resolved / outdated の指摘も収集対象には含めるが、現在も有効かコード上で再検証する。
 - API で取得できない surface、pagination 未完了、権限不足があれば `未確認` と記録し、完全取得したと報告しない。
 
-## `GH_TOKEN` と Checks API
+## GitHub CLI active account と Checks API
 
-`gh` は環境変数 `GH_TOKEN` を keyring の認証より優先する。PR metadata は取得できるのに `gh pr checks` や check-runs API だけが `403 Resource not accessible by personal access token` になり、レスポンスの `X-Accepted-GitHub-Permissions` が `checks=read` を示す場合は、未認証ではなく active token の権限制約として扱う。
+PR Steward の GitHub 操作は、`gh auth status` が示す一つの active member account を使う。PR metadata は取得できても `gh pr checks` や check-runs API が 403 を返す場合は、同じ active account の repository 権限または organization SSO 承認の不足として記録する。
 
-GitHub の fine-grained personal access token では、Checks API の資料が `Checks: read` を要求していても、token 設定 UI に `Checks` が出ず付与できないことがある。次の順で切り分ける。
-
-1. `gh auth status` で `GH_TOKEN` と keyring のどちらが active か確認する。token value は記録・出力しない。
-2. keyring に同一 account の有効な OAuth token がある場合は、read-only の probe を `env -u GH_TOKEN gh api ...` で実行する。
-3. probe が成功するなら、session では `env -u GH_TOKEN gh ...` を使うか、環境側の不要な `GH_TOKEN` 注入を外す。
-4. keyring を使えない環境では、classic PAT の `repo` scope または `Checks: read` を持つ GitHub App token を人間が用意する。secret の作成・差し替えは自動実行しない。
+permission failure を未計測や PASS に読み替えず、その operation で停止する。回復は member が通常の GitHub CLI account、対象 repository の権限、必要な SSO 承認を修復する経路だけとする。agent は別credential、別identity、PAT、GitHub App tokenへ切り替えず、command-localな環境操作やfallbackも行わない。
 
 ## 失敗の分類と扱い
 
