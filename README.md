@@ -2,14 +2,15 @@
 
 PR Steward は、指定された GitHub Pull Request をマージ可能な状態へ安全に整える aachat agent です。
 
-マージ価値の判定（merge value gate）、4 観点の並列レビュー、指摘の精査と実装計画化、修正実装、最終 merge-blocker review、PR ブランチへの push までを 1 つのワークフローとして実行します。
+マージ価値の判定（merge value gate）、4 観点の並列レビュー、証拠精査、fresh context での統合修正設計、修正実装、最終 merge-blocker review、PR ブランチへの push までを 1 つのワークフローとして実行します。
 
 ## できること
 
 - PR の目的・差分・リスクを読み、後続レビューに進める価値を `pass` / `needs-human` / `reject` で判定する。
 - Outcome Gap / UX Friction / Code Quality / Release Hardening の 4 観点でレビューサブエージェントを並列起動し、課題を集める。
 - GitHub PR 上の既存レビューを取得し、人間に加えて Cursor / Codex の指摘も出典付きで候補集合へ取り込む。
-- サブエージェントの指摘を証拠・影響・スコープ・複雑さで精査し、重複排除と優先度付け（P0〜P3 / defer）を行う。
+- サブエージェントの指摘を証拠・影響・スコープで精査し、問題の事実性と個別 reviewer の解法を分離する。
+- 複雑な review では fresh planning Session を使い、全課題を共通 root cause、既存 authority、不変条件から一つの最小な設計へ統合する。
 - 承認済み実装計画を新しい実装セッションに handoff し、最小限の修正だけを実装させる。
 - 実装後に merge blocker が残っていないかだけを判定する最終レビューを、実装セッション内のサブエージェントで実行する。
 - 安全チェックを満たした場合のみ PR head branch へ通常 push する。
@@ -43,11 +44,12 @@ aachat session run pr-steward --project <project> "https://github.com/<owner>/<r
 2. `merge-value-gate`: マージ価値の判定。`reject` は例外扱いで、迷ったら人間判断に倒す。
 3. `parallel-pr-review`: Cursor / Codex を含む既存 PR レビューの取得と、4 観点レビューの並列実行。
 4. 全 candidate の intake ledger 化と、根本原因単位の cluster 化。
-5. `review-issue-docs`: 小さな batch で精査し、有効な課題を 1 件ずつ shared document に固定。
-6. 親エージェントによる件数照合・重複排除・優先度付け・実装計画の確定。
-7. `implementation-handoff`: 新しい実装セッションへの handoff。
-8. `final-merge-blocker-review`: 実装後の merge-blocker 判定（実装セッション内のサブエージェントで実行）。
-9. `pr-push-safety`: push 前チェックと通常 push。
+5. `review-issue-docs`: 小さな batch で証拠を精査し、有効な課題を `proposed` として 1 件ずつ固定。
+6. review package の件数照合・重複排除・優先度付けと凍結。実装計画はまだ作らない。
+7. `integrated-fix-planning`: 必要なら fresh planning Session で、全課題から一つの統合修正設計を確定。
+8. `implementation-handoff`: planning Session から新しい実装セッションへの handoff。
+9. `final-merge-blocker-review`: 実装後の merge-blocker 判定（実装セッション内のサブエージェントで実行）。
+10. `pr-push-safety`: push 前チェックと通常 push。
 
 ## 安全方針
 
@@ -85,6 +87,7 @@ bash "$AA_AGENT_DIR/scripts/check.sh"
 - `merge-value-gate`: `pass` / `needs-human` / `reject` の判定基準とガードレール。
 - `parallel-pr-review`: Cursor / Codex を含む既存 PR レビューの intake、4 観点レビューサブエージェントの起動と共通ルール。
 - `review-issue-docs`: レビュー課題の shared document 化と frontmatter 規約。
+- `integrated-fix-planning`: evidence-validated な複数課題を fresh context で一つの最小な修正設計へ統合。
 - `implementation-handoff`: 承認済み実装計画の新セッションへの引き継ぎ。
 - `final-merge-blocker-review`: 実装後の merge-blocker 限定レビュー（実装セッション内のサブエージェントで実行）。
 - `pr-push-safety`: push 前チェックリストと push ルール。
@@ -104,8 +107,8 @@ PR Steward の GitHub 操作用 credential を `environment.yaml` や repo 内�
 
 ### description_ja（submit 用候補）
 
-PR Steward は、GitHub Pull Request をマージ可能な状態へ安全に整えるエージェントです。マージ価値の判定、成果・UX・コード品質・リリース安全性の 4 観点並列レビュー、指摘の証拠ベースの精査と優先度付け、最小限の修正実装、最終 merge-blocker review、安全確認付きの push までを行い、判断材料と監査ログは aachat shared document に、GitHub コメントは簡潔な結論だけに残します。破壊的 git 操作や仕様判断は人間承認に回します。
+PR Steward は、GitHub Pull Request をマージ可能な状態へ安全に整えるエージェントです。マージ価値の判定、成果・UX・コード品質・リリース安全性の 4 観点並列レビュー、指摘の証拠精査、fresh context での統合修正設計、最小限の修正実装、最終 merge-blocker review、安全確認付きの push までを行います。判断材料と監査ログは aachat shared document に残し、破壊的 git 操作や仕様判断は人間承認に回します。
 
 ### description_en（submit 用候補）
 
-PR Steward safely drives a GitHub pull request toward a mergeable state. It runs a merge-value gate, launches four parallel reviewers (outcome gap, UX friction, code quality, release hardening), validates findings against evidence before planning fixes, implements the approved minimal fixes in a fresh session, runs a final merge-blocker-only review as a subagent inside that session, and pushes with strict safety checks. Long-form reasoning and audit logs live in aachat shared documents; GitHub comments stay concise. Destructive git operations and spec-level decisions are escalated to humans.
+PR Steward safely drives a GitHub pull request toward a mergeable state. It runs a merge-value gate, launches four parallel reviewers, separates evidence validation from proposed remedies, synthesizes complex findings into one coherent minimal design in a fresh planning session, implements that plan in another fresh session, runs a final merge-blocker-only review, and pushes with strict safety checks. Long-form reasoning and audit logs live in aachat shared documents; destructive git operations and spec-level decisions are escalated to humans.

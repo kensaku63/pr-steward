@@ -62,13 +62,15 @@ sources:
 - 起きる条件・分からない条件
 - 直す価値
 - 十分な解決状態
-- 最適な解決方針
-- なぜそれが最適か
+- 既存の責務・正本・不変条件
+- 解法仮説（任意・非 authoritative）
+- planning で再検討すべき architecture risk
 - 親エージェント向け判断メモ
 
 ルール:
 
-- 「何が問題か」だけで終えない。「なぜ今直すべきか」「どの状態になれば十分か」「どう解決するのが最適か」「なぜそれが最適か」まで書く。
+- 「何が問題か」だけで終えない。「なぜ今直すべきか」「どの状態になれば十分か」まで書く。個別 issue doc では最適解を確定しない。
+- 解法仮説を書く場合は事実・十分な解決状態と分離し、fresh planning が採用し直すまで approved と呼ばない。
 - 書けない項目を無理に埋めない。確認できていない内容は `未確認` と明記する。
 - 観測した事実には、PR 差分、既存仕様、テスト失敗、実行ログ、再現手順のどれに基づくかを書く。
 - GitHub 上のレビュー本文は、それ自体を事実とみなさない。指摘内容をコード・仕様・実行結果で再検証し、source URL と検証結果を分けて書く。
@@ -85,13 +87,15 @@ sources:
 | status | 意味 |
 | --- | --- |
 | `proposed` | 親エージェントが有効な unique cluster と確認し、issue doc へ昇格した直後 |
-| `accepted` | 親エージェントが精査して実装計画に採用 |
+| `accepted` | integrated planning が統合 plan に採用 |
 | `rejected` | 証拠不足、スコープ外、過剰として却下 |
 | `deferred` | follow-up または人間判断へ回す |
+| `superseded` | 統合 plan の別 design change で独立修正が不要 |
 | `duplicate` | 他課題と統合。`duplicate_of` に元 doc を書く |
 | `fixed` | 実装セッションが修正し、検証済み |
 
-- 親エージェントは精査結果（採用 / 却下 / defer / duplicate）を status と「親エージェント向け判断メモ」に追記する。
+- review 親エージェントは evidence-validated な unique issue を `proposed` のまま planning へ渡す。実装採用の `accepted` へ変更しない。
+- integrated planning Session は全 issue の横断設計後に `accepted` / `rejected` / `deferred` / `superseded` を確定し、判断メモへ統合 plan との対応を追記する。
 - 実装セッションは修正ごとに該当 doc を更新し、修正内容と検証結果を追記する。
 
 ## 6. 重複排除

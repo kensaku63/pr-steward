@@ -5,7 +5,7 @@ description: 実装後の PR に「マージを止める重大問題が残って
 
 # Final Merge-Blocker Review
 
-PR Steward workflow の Step 8。実装後の最終レビューは、改善点探しではなく「マージを止める重大問題が残っているか」の判定に限定する。
+PR Steward workflow の Step 9。実装後の最終レビューは、改善点探しではなく「マージを止める重大問題が残っているか」の判定に限定する。
 
 このレビューは **新規 session を起動せず、実装を行った session の中からサブエージェント（Agent tool）として実行する**。実装の文脈に引きずられない fresh context のレビュアーを 1 つ起動し、その判定を親（実装 session）が精査する。
 

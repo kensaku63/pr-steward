@@ -19,25 +19,25 @@
 
 GitHub PR 上の Cursor / Codex / 人間 reviewer の指摘にも、同じ基準を適用する。author や review tool の評判を根拠に採否を決めない。
 
-## Simplicity hard gate
+## Review evidence gate
 
-レビュー指摘の事実性と、その指摘で提案された解法の妥当性は別々に判定する。正しい指摘でも、提案解法をそのまま要件化しない。
+レビュー指摘の事実性と、その指摘で提案された解法の妥当性を分離する。review 親 Session が確定するのは症状、証拠、影響、scope、priority、十分な解決状態までである。個別の解法は approved plan にしない。
 
-accepted にする前に、cluster ごとに次を明記する。
+evidence-validated な `proposed` issue にする前に、cluster ごとに次を明記する。
 
 1. 守るユーザー価値と十分な解決状態。
 2. 問題を生んだ責務・不変条件。既存の正本へ戻す、変更を消す、元の単純な設計を保つ方法がないか。
-3. 解法の architecture delta。新しい永続状態、正本、状態遷移、公開 API、caller が守る手順、変更経路が増えるか。
-4. 最小解との比較。architecture delta がある案は、それがプロダクト要件から直接必要で、より小さい案では十分な解決状態を満たせない具体的な挙動比較がある場合だけ採用する。「必要」「他にない」という説明だけは証拠にしない。
+3. reviewer が示した解法仮説と、その architecture delta。仮説は比較材料であり、採用判断ではない。
+4. fresh planning が必要になる signal。新しい永続状態、正本、状態遷移、公開 API、caller が守る手順、変更経路が含まれるか。
 
-次のいずれかに該当したら、個別 guard を追加して計画を確定せず、`defer` または `needs-human` として簡素化を再計画する。
+次のいずれかに該当したら、review 親 Session は個別 guard を解法として採用せず、`integrated-fix-planning` の fresh planning 必須 signal として記録する。
 
 - 下書き控えのために送信 lifecycle を持つ、表示補助のために第二の正本を持つなど、補助機構が本体の責務を引き受ける。
 - 複数 caller が `begin / accept / reject` のような内部 protocol を知る必要が生じる。
 - ある修正が作った race や不整合を、別の nonce、CAS、fence、例外分岐で塞ぐ必要が生じる。
 - テストがユーザー契約ではなく、特定の関数呼び出し順や実装文字列を固定し始める。
 
-複雑な解法を却下しても、元の candidate は失わない。ledger には「指摘は有効だが解法は過剰」「より小さい設計へ再計画」のように、症状と解法を分けて disposition を残す。
+複雑な解法仮説を退けても、元の candidate は失わない。ledger には「指摘は有効、解法仮説は非 authoritative」「fresh planning で再設計」のように、症状と解法を分けて残す。
 
 ## 認知負荷を超えない精査手順
 
@@ -46,18 +46,19 @@ accepted にする前に、cluster ごとに次を明記する。
 1. まず全 candidate を lossless に intake ledger へ固定し、source と stable ID を付ける。
 2. 同じ根本原因・失敗条件・修正対象を持つ candidate を cluster 化する。cluster 化は整理であり、採否判断ではない。
 3. 原則最大 5 cluster の batch に分ける。P0候補、security、認証、データ破壊は 1 cluster ずつ扱う。
-4. 各 cluster について、必要な diff・仕様・テスト・実行証拠だけを読み直し、この checklist と simplicity hard gate で disposition を決める。
+4. 各 cluster について、必要な diff・仕様・テスト・実行証拠だけを読み直し、この checklist と evidence gate で disposition を決める。
 5. batch ごとに ledger と issue doc を更新して判断を外部化し、未処理件数を再計算してから次へ進む。
-6. 全 batch 後に横断重複と優先度の整合だけを別 pass で確認する。個別課題の詳細判定と全体最適化を同時に行わない。
+6. 全 batch 後に横断重複と優先度の整合を確認し、review package を凍結する。この Session では全体修正 plan を作らない。
+7. `$AA_AGENT_DIR/.agents/skills/integrated-fix-planning/SKILL.md` の条件で fresh planning の要否を判定する。
 
 完了時には、次の件数が保存則を満たすことを確認する。
 
 ```text
 collected candidates
-= accepted + rejected + deferred + duplicate + superseded
+= validated + rejected + deferred + duplicate + superseded
 ```
 
-`untriaged` が 1 件でも残る場合、実装計画を確定しない。context 不足や時間不足で精査品質を維持できない場合は、未処理範囲を明示して次 session へ handoff し、完了扱いにしない。
+`validated` は事実として有効で `status: proposed` の issue doc に昇格した candidate であり、実装採用を意味しない。`untriaged` が 1 件でも残る場合、planning に進まない。context 不足や時間不足で精査品質を維持できない場合は、未処理範囲を明示して次 session へ handoff し、完了扱いにしない。
 
 ## 重複排除
 
@@ -72,12 +73,11 @@ collected candidates
 - `P3`: follow-up 可。軽微な改善、低リスクの保守性課題。
 - `defer`: 今回は扱わない。人間判断または別 PR が適切。
 
-## 実装順序
+## Planning への境界
 
-1. P0 と CI 失敗原因を最優先にする。
-2. 同じファイル・同じ責務に属する修正はまとめる。
-3. 依存関係がある場合は、基盤修正、型・契約修正、利用側修正、テスト修正の順に進める。
-4. PR 目的から外れる改善、任意リファクタ、好みの問題は実装対象から外す。
+- review priority は問題の重要度であり、実装順序ではない。
+- `validated` issue を全件実装する前提にしない。planning Session は横断設計の結果として `accepted` / `rejected` / `deferred` / `superseded` を再決定する。
+- 実装順序、変更箇所、architecture delta、simplicity budget は `integrated-fix-planning` が確定する。
 
 ## テスト指摘の採用基準
 

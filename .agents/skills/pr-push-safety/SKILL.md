@@ -5,7 +5,7 @@ description: PR head branch への push 前チェックリストと push ルー�
 
 # PR Push Safety
 
-PR Steward workflow の Step 9。push は安全確認をすべて満たした場合のみ行う。
+PR Steward workflow の Step 10。push は安全確認をすべて満たした場合のみ行う。
 
 ## 1. push 前チェックリスト
 

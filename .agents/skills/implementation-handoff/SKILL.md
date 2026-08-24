@@ -5,7 +5,7 @@ description: 承認済み実装計画を新しい実装セッションへ handof
 
 # Implementation Handoff
 
-PR Steward workflow の Step 7。親エージェントは、承認済み実装計画を新しいセッションへ渡す。
+PR Steward workflow の Step 8。`integrated-fix-planning` を完了した planning Session は、承認済み実装計画を新しい実装 Session へ渡す。review 親 Session はこの skill を直接起動しない。
 
 ## 1. handoff doc を作る
 
@@ -21,12 +21,16 @@ aachat/projects/<team>/<project>/docs/pr-steward-handoff/<pr-number>-fix-plan.md
 
 - PR URL / PR number
 - 作成された shared document links（review issue docs、audit record doc）
+- planning Session ID と reviewed HEAD
 
 加えて、次を含めることを推奨する:
 
 - base branch / head branch / 作業時の HEAD
 - この PR が守る最小のユーザー価値と、十分な解決状態
-- approved fix plan（採用課題、優先度、実装順序）
+- root cause / broken invariant、authoritative state / owner / caller boundary
+- 比較した削除案・既存責務へ戻す案・追加案と採否理由
+- approved fix plan（issue の羅列ではなく design change、対応 issue、優先度、実装順序）
+- rejected / deferred / superseded issue と非目標
 - 修正ごとの変更箇所、期待挙動、検証方法
 - simplicity budget（追加を認める永続状態、正本、状態遷移、公開 API、caller protocol。人間の明示承認がなければすべて `none`。一般的な plan 承認ではなく、人間が各 architecture delta を明記して承認した場合だけ承認済みとみなす）
 - 実行すべき lint / typecheck / test / build コマンド
@@ -56,7 +60,7 @@ handoff doc を作成したら、同じ PR Steward agent の fresh session を�
 
 ```bash
 chat session run --agent <agent> --project <project> --stdin <<'EOF'
-Step 7 の実装セッションです。
+Step 8 の実装セッションです。
 [[aachat/projects/<team>/<project>/docs/pr-steward-handoff/<pr-number>-fix-plan.md]] を読んで、approved fix plan の範囲だけを実装してください。
 実装後は `final-merge-blocker-review` をサブエージェントで実行し（新規 session を起動しない）、blocker なしなら `pr-push-safety` に従って push まで進めてください。
 完了・停止・人間判断が必要な場合は project に報告してください。
@@ -65,19 +69,19 @@ EOF
 
 message には長い計画を書かない。次の内容だけを含める。
 
-- Step 7 の実装セッションであること。
+- Step 8 の実装セッションであること。
 - handoff doc への wiki link（例: `[[aachat/projects/<team>/<project>/docs/pr-steward-handoff/<pr-number>-fix-plan.md]]`）。
 - approved fix plan の範囲だけを実装すること。
 - 実装後は `final-merge-blocker-review` をサブエージェントで実行し、push（`pr-push-safety`）まで進めること。
 - 完了・停止・人間判断が必要な場合は project に報告すること。
 
-実装セッションを起動できたら、この親セッションは以後の実装を続けない。今回の handoff で得た再利用可能な学びを `$AA_AGENT_DIR/memory/` に保存し、保存後に現在の session を終了する。
+実装セッションを起動できたら、この planning Session は以後の実装を続けない。今回の handoff で得た再利用可能な学びがある場合は `$AA_AGENT_DIR/memory/` に保存し、保存後に現在の session を終了する。
 
 ```bash
 chat session finish
 ```
 
-## 4. 実装セッションの必須行動（Step 7）
+## 4. 実装セッションの必須行動（Step 8）
 
 実装セッションは、approved fix plan を順番に実装する。
 
@@ -91,7 +95,7 @@ chat session finish
 - 実装と検証が終わったら、`final-merge-blocker-review` skill に従い、最終レビューを **同じ session 内のサブエージェント** として実行する。最終レビューのために新規 session を起動しない。
 - blocker なしと判定したら `pr-push-safety` に進む。
 
-## 5. handoff 後の親エージェント
+## 5. handoff 後の planning Session
 
-- Step 8（`final-merge-blocker-review`、サブエージェント実行）と Step 9（`pr-push-safety`）は実装セッションが続けて行う。親が別のレビューセッションを起動しない。
+- Step 9（`final-merge-blocker-review`、サブエージェント実行）と Step 10（`pr-push-safety`）は実装セッションが続けて行う。planning Session が別のレビューセッションを起動しない。
 - 実装セッションが停止・報告してきた場合は、計画を修正するか人間判断へ回す。

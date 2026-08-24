@@ -62,7 +62,7 @@ sources:
 ```
 
 - `reviewer_role` は `outcome_gap`、`ux_friction`、`code_quality`、`release_hardening` のいずれか。
-- `status` は `proposed` で作成し、親エージェントの精査で `accepted` / `rejected` / `deferred` / `duplicate` / `fixed` に更新する。
+- `status` は evidence-validated な issue を `proposed` で作成する。review 親 Session は `accepted` にせず、integrated planning が `accepted` / `rejected` / `deferred` / `superseded` に更新する。実装検証後は `fixed` にする。
 - 重複 doc は `status: duplicate` と `duplicate_of` で元 doc を参照する。
 - `sources` は、元 candidate ID、source kind、author、URL / GitHub ID を持つ。複数 reviewer の同一指摘を統合しても source を失わない。
 
@@ -73,8 +73,9 @@ sources:
 - 起きる条件・分からない条件
 - 直す価値
 - 十分な解決状態
-- 最適な解決方針
-- なぜそれが最適か
+- 既存の責務・正本・不変条件
+- 解法仮説（任意・非 authoritative）
+- planning で再検討すべき architecture risk
 - 親エージェント向け判断メモ
 
 書けない項目を無理に埋めない。確認できていない内容は `未確認` と明記する。
@@ -91,9 +92,10 @@ sources:
 - GitHub PR review intake の取得 surface、取得結果、未確認 surface
 - Cursor / Codex を含む既存 review candidate の source metadata
 - 全 candidate の intake ledger、cluster、disposition
-- collected / accepted / rejected / deferred / duplicate / superseded / untriaged の件数照合
+- collected / validated / rejected / deferred / duplicate / superseded / untriaged の review 件数照合
+- validated unique issue の planning disposition（accepted / rejected / deferred / superseded）と件数照合
 - 作成された review issue docs
-- 親エージェントの採用 / 却下 / defer 判断
+- review 親エージェントの evidence validation と、planning Session の採用 / 却下 / defer 判断
 - approved fix plan
 - 実装内容
 - 実行した commands と結果要約
@@ -121,11 +123,13 @@ intake ledger の各 candidate は最低限次を持つ。
 disposition:
 
 - `untriaged`: 未精査
-- `accepted`: 有効な課題として issue doc と実装計画へ採用
+- `validated`: 有効な課題として `status: proposed` の issue doc へ昇格。実装採用ではない
 - `rejected`: 証拠不足、スコープ外、非課題
 - `deferred`: follow-up または人間判断へ移送
 - `duplicate`: 同じ canonical cluster へ統合
 - `superseded`: 後続 commit や別修正ですでに解消
+
+新規 audit では review disposition に `validated` を使う。過去 audit の `accepted` は historical record として書き換えない。planning 後は別の planning ledger で、`validated = accepted + rejected + deferred + superseded` を照合する。
 
 ## handoff doc
 

@@ -55,6 +55,8 @@ required_files=(
   ".agents/skills/merge-value-gate/SKILL.md"
   ".agents/skills/parallel-pr-review/SKILL.md"
   ".agents/skills/review-issue-docs/SKILL.md"
+  ".agents/skills/integrated-fix-planning/SKILL.md"
+  ".agents/skills/integrated-fix-planning/agents/openai.yaml"
   ".agents/skills/implementation-handoff/SKILL.md"
   ".agents/skills/final-merge-blocker-review/SKILL.md"
   ".agents/skills/pr-push-safety/SKILL.md"
@@ -109,6 +111,17 @@ if grep -R -n -E -e 'GH_TOKEN' -e 'GITHUB_TOKEN' -e 'env -u GH_TOKEN' \
   "$repo_root/README.md" "$repo_root/environment.yaml" "$repo_root/identity.md" \
   "$repo_root/knowledge" "$repo_root/.agents/skills" >/dev/null; then
   fail "agent-facing surface declares or recommends a GitHub environment credential"
+fi
+
+if grep -n -F -e '最適な解決方針' -e 'なぜそれが最適か' \
+  "$repo_root/knowledge/aachat-review-doc-schema.md" \
+  "$repo_root/.agents/skills/parallel-pr-review/SKILL.md" \
+  "$repo_root/.agents/skills/review-issue-docs/SKILL.md" >/dev/null; then
+  fail "review evidence schema still asks issue-level reviewers to approve a local solution"
+fi
+
+if ! grep -q -F '`integrated-fix-planning`' "$repo_root/identity.md"; then
+  fail "identity does not route validated review findings through integrated fix planning"
 fi
 
 if [[ -d "$repo_root/.git" || -f "$repo_root/.git" ]]; then

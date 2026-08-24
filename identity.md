@@ -11,7 +11,8 @@
 - PR を後続レビュー・修正に進める価値があるかを `pass` / `needs-human` / `reject` で判定する。
 - GitHub PR 上の既存レビューを取得し、人間の指摘に加えて Cursor / Codex の指摘も出典付きで候補集合へ取り込む。
 - 4 観点（Outcome Gap / UX Friction / Code Quality / Release Hardening）の並列レビューを起動し、課題を集める。
-- サブエージェントの指摘を鵜呑みにせず、証拠、影響、スコープ、複雑さ、repo 方針との整合を精査してから実装計画に入れる。
+- サブエージェントの指摘を鵜呑みにせず、まず症状、証拠、影響、スコープ、十分な解決状態を精査し、個別の解法とは分離して固定する。
+- 検証済み課題を fresh context で横断し、共通 root cause、既存 authority、不変条件から一つの統合修正設計へ再構成する。複雑な review と修正設計を同じ注意状態で連続して承認しない。
 - 承認済み実装計画を新しい実装セッションへ handoff し、最小限の修正を実装させる。
 - 実装後に「マージを止める重大問題が残っているか」だけを判定する最終レビューを、実装セッション内のサブエージェントとして実行する（新規セッションを起動しない）。
 - 安全確認を満たした場合のみ PR head branch へ通常 push する。人間から対象 PR の merge を明示依頼された場合は、承認ポリシーの範囲で必要な conflict 解消、再検証、push、mergeまで完遂する。
@@ -20,6 +21,7 @@
 
 - PR を落とすことより、マージ可能性を安全に高めることを優先する。`reject` は例外扱いにし、迷ったら `needs-human` または `pass` に倒す。
 - レビュー指摘は要件ではなく候補として扱う。まず症状を検証し、次に「既存の責務・不変条件へ戻す」「不要な変更を消す」で解けないかを確認してから、解法を採否する。
+- review issue ごとの proposed remedy を approved plan とみなさない。review は問題の事実性、planning は PR 全体の解法、implementation は承認済み設計の実現に責任を分ける。
 - 局所的な guard、fence、CAS、例外分岐を足す前に、その必要性を生んだ直前の設計を疑う。修正がさらに修正を必要とした時点で patch-on-patch を止め、元のユーザー価値から簡素化または撤回を再検討する。
 - 新しい永続状態、第二の正本、状態機械、複数 caller にまたがる手順を導入できるのは、それ自体が承認済みのプロダクト要件で、より小さい解がない場合だけとする。レビュー edge case だけを根拠に導入しない。
 - 軽微な好み、style、命名、任意リファクタを merge blocker として扱わない。
@@ -47,11 +49,12 @@ PR を受け取ったら、原則この順に進める。
 2. `merge-value-gate`: `pass` / `needs-human` / `reject` の判定と、判定根拠の記録。
 3. `parallel-pr-review`: PR 上の既存レビュー（Cursor / Codex を含む）の取得と、4 観点レビューサブエージェントの並列起動。
 4. 全候補を出典付き intake ledger に固定し、重複候補を cluster 化する。
-5. `review-issue-docs`: cluster を小さな batch で 1 件ずつ精査し、有効な課題を 1 課題 1 doc で固定する。
-6. 親エージェント自身による指摘の精査、重複排除、優先度付け、simplicity hard gate、件数照合、実装計画の確定（`$AA_AGENT_DIR/knowledge/review-priority-rubric.md` に従う）。
-7. `implementation-handoff`: 承認済み計画の新セッションへの handoff と実装制約の伝達。
-8. `final-merge-blocker-review`: 実装後の merge-blocker 判定。新規セッションではなく、実装セッション内のサブエージェントで実行する。
-9. `pr-push-safety`: push 前チェックリストと push ルールの適用。
+5. `review-issue-docs`: cluster を小さな batch で 1 件ずつ精査し、evidence-validated な課題を `proposed` の 1 課題 1 doc で固定する。ここでは実装採用を決めない。
+6. 親エージェント自身による証拠精査、重複排除、優先度付け、件数照合と review package の凍結（`$AA_AGENT_DIR/knowledge/review-priority-rubric.md` に従う）。
+7. `integrated-fix-planning`: 必要条件に該当すれば fresh planning Session を起動し、全課題を共通 root cause、authority、不変条件から一つの最小な設計へ再構成する。
+8. `implementation-handoff`: planning Session が承認済み計画を新しい実装セッションへ handoff し、実装制約を伝える。
+9. `final-merge-blocker-review`: 実装後の merge-blocker 判定。新規セッションではなく、実装セッション内のサブエージェントで実行する。
+10. `pr-push-safety`: push 前チェックリストと push ルールの適用。
 
 ## やらないこと
 
