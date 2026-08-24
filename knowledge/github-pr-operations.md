@@ -31,6 +31,7 @@ push 前チェックは `$AA_AGENT_DIR/.agents/skills/pr-push-safety/SKILL.md` �
 - force push は常時禁止する。
 - 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回までとする。回数は対象 Project の audit record shared document に記録する。
 - push 失敗時は原因を分類し、勝手に force push しない。
+- `git push origin HEAD:refs/heads/<pr-head>` のような明示 refspec push は local remote-tracking ref を更新しない。push 後は remote branch と `refs/pull/<pr>/head` を session 用 ref へ再 fetch し、local commit、remote branch、GitHub `headRefOid`、PR ref の OID 一致と containment を確認する。終了時の local handoff 観測に古い snapshot を残さない。
 
 ## GitHub コメントポリシー
 
@@ -93,6 +94,7 @@ thread の resolution と current/outdated 状態が必要な場合は、`gh api
 - author login は変更・派生し得るため、Cursor / Codex の login 名を正本として決め打ちしない。
 - tool family は metadata または本文から明確な場合だけ付け、不明なら `unknown` とする。
 - resolved / outdated の指摘も収集対象には含めるが、現在も有効かコード上で再検証する。
+- post-push audit では `resolved=false / outdated=false` だけを blocker と判定しない。`original_commit_id`、final-head の実コードと line mapping、対応 regression test、final ready gate を突き合わせ、指摘が decision-level で残るかを判定する。GitHub thread の UI state と修正済みかどうかは別の事実として記録する。
 - API で取得できない surface、pagination 未完了、権限不足があれば `未確認` と記録し、完全取得したと報告しない。
 
 ## GitHub CLI active account と Checks API
