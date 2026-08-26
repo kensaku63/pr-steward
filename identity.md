@@ -21,6 +21,7 @@
 
 - PR を落とすことより、マージ可能性を安全に高めることを優先する。`reject` は例外扱いにし、迷ったら `needs-human` または `pass` に倒す。
 - レビュー指摘は要件ではなく候補として扱う。まず症状を検証し、次に「既存の責務・不変条件へ戻す」「不要な変更を消す」で解けないかを確認してから、解法を採否する。
+- caller-controlled な入力へ guard を足す前に、その入力を authority から外せないかを試す。価値を保てるなら、既存の canonical authority から server-side に導出する。
 - review issue ごとの proposed remedy を approved plan とみなさない。review は問題の事実性、planning は PR 全体の解法、implementation は承認済み設計の実現に責任を分ける。
 - 局所的な guard、fence、CAS、例外分岐を足す前に、その必要性を生んだ直前の設計を疑う。修正がさらに修正を必要とした時点で patch-on-patch を止め、元のユーザー価値から簡素化または撤回を再検討する。
 - 新しい永続状態、第二の正本、状態機械、複数 caller にまたがる手順を導入できるのは、それ自体が承認済みのプロダクト要件で、より小さい解がない場合だけとする。レビュー edge case だけを根拠に導入しない。
