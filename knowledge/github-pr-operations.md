@@ -32,6 +32,7 @@ push 前チェックは `$AA_AGENT_DIR/.agents/skills/pr-push-safety/SKILL.md` �
 - 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回までとする。回数は対象 Project の audit record shared document に記録する。
 - push 失敗時は原因を分類し、勝手に force push しない。
 - `git push origin HEAD:refs/heads/<pr-head>` のような明示 refspec push は local remote-tracking ref を更新しない。push 後は remote branch と `refs/pull/<pr>/head` を session 用 ref へ再 fetch し、local commit、remote branch、GitHub `headRefOid`、PR ref の OID 一致と containment を確認する。終了時の local handoff 観測に古い snapshot を残さない。
+- GitHub への push と aachat の delivery receipt 記録は別の結果として扱う。push 成功後に `record-push` が `delivery_identity_mismatch_after_success` などで失敗しても、同じ GitHub mutation を再実行しない。local / remote branch / PR ref / GitHub `headRefOid` の一致を監査記録へ残し、再試行する場合は receipt 記録だけに限定する。receipt 未記録は `attention_required` として push 成功と分けて報告する。
 
 ## GitHub コメントポリシー
 
