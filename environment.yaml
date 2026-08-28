@@ -3,6 +3,7 @@ description: "PR Steward Agent runtime environment"
 config:
   packages:
     apt: [gh, jq]
+    pip: [PyYAML]
   networking:
     type: unrestricted
   env: []
