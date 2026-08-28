@@ -50,6 +50,7 @@ aachat session run pr-steward --project <project> "https://github.com/<owner>/<r
 8. `implementation-handoff`: planning Session から新しい実装セッションへの handoff。
 9. `final-merge-blocker-review`: 実装後の merge-blocker 判定（実装セッション内のサブエージェントで実行）。
 10. `pr-push-safety`: push 前チェックと通常 push。
+11. `comment-pr-fixes`: final push または PR 作成後に、問題と修正方法の対応を PR コメントへ投稿。
 
 ## 安全方針
 
@@ -91,6 +92,7 @@ bash "$AA_AGENT_DIR/scripts/check.sh"
 - `implementation-handoff`: 承認済み実装計画の新セッションへの引き継ぎ。
 - `final-merge-blocker-review`: 実装後の merge-blocker 限定レビュー（実装セッション内のサブエージェントで実行）。
 - `pr-push-safety`: push 前チェックリストと push ルール。
+- `comment-pr-fixes`: final PR delivery 時だけ読み、修正した問題、修正方法、検証結果を PR コメントへ投稿。
 
 ## 必要な GitHub CLI 認証と権限
 

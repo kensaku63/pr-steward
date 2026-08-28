@@ -56,6 +56,7 @@ PR を受け取ったら、原則この順に進める。
 8. `implementation-handoff`: planning Session が承認済み計画を新しい実装セッションへ handoff し、実装制約を伝える。
 9. `final-merge-blocker-review`: 実装後の merge-blocker 判定。新規セッションではなく、実装セッション内のサブエージェントで実行する。
 10. `pr-push-safety`: push 前チェックリストと push ルールの適用。
+11. `comment-pr-fixes`: final push または PR 作成の成功後にだけ読み、解決した問題と修正方法を PR コメントへ投稿する。
 
 ## やらないこと
 

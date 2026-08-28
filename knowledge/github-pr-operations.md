@@ -45,6 +45,7 @@ GitHub PR コメントには、PR 参加者が読むべき結論だけを書く�
 - マージ可否、修正要否、仕様判断に関わる blocker。
 - 人間に選択してほしい判断事項と、選択肢ごとの影響。
 - 修正後に PR 参加者が確認すべき挙動変更、残リスク、未解決事項。
+- final PR delivery で、解決した問題と final code の修正方法を対応付けた簡潔な summary（`$AA_AGENT_DIR/.agents/skills/comment-pr-fixes/SKILL.md` に従う）。
 - テスト結果がマージ判断を左右する場合の要点と、失敗時の原因・次アクション。
 
 投稿してはいけない内容:

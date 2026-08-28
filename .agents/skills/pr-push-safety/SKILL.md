@@ -37,5 +37,5 @@ push 前に次を必ず確認する。1 つでも満たせない場合は push �
 ## 4. push 後
 
 - push した commit hash を audit record doc に記録する。
-- PR 参加者が確認すべき挙動変更、残リスク、未解決事項がある場合のみ、GitHub PR コメントに簡潔に投稿する（`$AA_AGENT_DIR/knowledge/github-pr-operations.md` のコメントポリシーに従う）。
+- final push の remote / PR exact OID を確認したら `$AA_AGENT_DIR/.agents/skills/comment-pr-fixes/SKILL.md` を読み、解決した問題と修正方法を GitHub PR コメントへ投稿する。途中の push では実行しない。
 - 中断・停止した場合は branch、未コミット差分、完了済み作業、未完了作業、再開手順を shared document に記録する。

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Comment PR Fixes"
+  short_description: "Post a concise problem-to-fix summary at final PR delivery"
+  default_prompt: "Use $comment-pr-fixes after the final PR push to post the verified fixes and validation results."
