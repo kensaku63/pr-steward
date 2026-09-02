@@ -34,6 +34,17 @@ push 前チェックは `$AA_AGENT_DIR/.agents/skills/pr-push-safety/SKILL.md` �
 - `git push origin HEAD:refs/heads/<pr-head>` のような明示 refspec push は local remote-tracking ref を更新しない。push 後は remote branch と `refs/pull/<pr>/head` を session 用 ref へ再 fetch し、local commit、remote branch、GitHub `headRefOid`、PR ref の OID 一致と containment を確認する。終了時の local handoff 観測に古い snapshot を残さない。
 - GitHub への push と aachat の delivery receipt 記録は別の結果として扱う。push 成功後に `record-push` が `delivery_identity_mismatch_after_success` などで失敗しても、同じ GitHub mutation を再実行しない。local / remote branch / PR ref / GitHub `headRefOid` の一致を監査記録へ残し、再試行する場合は receipt 記録だけに限定する。receipt 未記録は `attention_required` として push 成功と分けて報告する。
 
+## 古い分岐点と PR 差分を区別する
+
+PR head の merge-base が指定 base や current base より古いとき、`git diff <base>..<head>` は両 tree の単純比較になる。この出力には base 側だけで進んだ変更の削除が大量に見えることがあるが、それだけで「PR を merge すると既存変更を巻き戻す」と判定しない。
+
+- PR が導入した変更は `git diff <base>...<head>` で merge-base から確認する。
+- 実際の自動 merge 可否と result tree は `git merge-tree --write-tree <base> <head>` で worktree を変えずに確認する。
+- 二点 diff、三点 diff、merge result tree の件数と意味を audit record で分ける。
+- `merge-tree` が tree を生成しても、current base との統合後の test / lint / contract evidence を代替しない。
+
+古い分岐点は release risk の調査 signal だが、巻き戻しや conflict の事実ではない。推測を blocker にせず、merge result と最終検証を根拠に判定する。
+
 ## GitHub コメントポリシー
 
 GitHub PR コメントには、PR 参加者が読むべき結論だけを書く。投稿してよい内容は、PR 参加者の判断または次の行動を変えるものに限る。
