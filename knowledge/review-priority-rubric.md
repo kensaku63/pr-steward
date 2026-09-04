@@ -78,6 +78,7 @@ collected candidates
 - review priority は問題の重要度であり、実装順序ではない。
 - `validated` issue を全件実装する前提にしない。planning Session は横断設計の結果として `accepted` / `rejected` / `deferred` / `superseded` を再決定する。
 - 実装順序、変更箇所、architecture delta、simplicity budget は `integrated-fix-planning` が確定する。
+- PR 本文が「承認済み SPEC で受け入れている」と述べる挙動への指摘は、`$AA_AGENT_DIR/knowledge/human-approval-policy.md` の「承認済みの受け入れ済み副作用」で authority を検証してから disposition を決める。
 
 ## テスト指摘の採用基準
 

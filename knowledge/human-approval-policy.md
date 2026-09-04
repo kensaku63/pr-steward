@@ -45,6 +45,24 @@ secret 検出は merge value の `reject` ではない。公開 PR コメント�
 - rebase、force push、history rewrite、base branch / target branch変更が必要になる。
 - remote head が進み、通常 fast-forward push では届けられない。
 
+## 承認済みの受け入れ済み副作用
+
+PR 本文が「この挙動は承認済み SPEC で受け入れている」と述べる場合、それは authority の主張であり、planning は採否を決める前に検証する。検証結果で disposition が変わる。
+
+検証する 3 点を分けて確認し、確認できなかったものは `未確認` と明記する。
+
+- 正本 SPEC 本文に、reviewer が指摘した挙動そのものが書かれ、受け入れると宣言されているか。
+- SPEC の変更境界が、その修正対象 surface を対象外と宣言しているか。対象外なら修正は scope 拡張であり、未完了の埋め合わせではない。
+- 承認の所在。authority は回答済みの人間の決定にあり、SPEC の `status` field ではない（実装承認後も `draft` のまま残ることがある）。その決定が当該副作用を判断点として enumerate していたかを確認する。
+
+PR の変更 file が SPEC の実装構成と一致することも確認する。一致は PR が承認境界の内側に留まった強い証拠になる。
+
+主張が成立する場合、その指摘は `accepted` ではなく `deferred` にする。症状が evidence-validated でも、解法は仕様を所有する Project のものである。人間が明示的に受け入れた副作用を再び開くのは仕様・UX 判断なので、steward 裁量ではなくその Project の承認経路へ回す。merge blocker として扱わない。
+
+doc / contract 修正の scope 判定では、訂正と新規追加を分ける。PR が既存の記述を誤りにしたなら訂正は scope 内。contract がその領域に元々触れていないなら追記は新規追加であり、同じ scope 判断を受ける。exact head で contract 本文を読んでから判定し、stale だと推測しない。
+
+design change 0 件の approved plan は正当な planning 結果である。保存則を記録し、implementation handoff を起動せず報告する。
+
 ## `needs-human` に倒す条件
 
 merge value gate やレビュー精査で次に該当する場合、自動で進めず人間判断へ回す。
