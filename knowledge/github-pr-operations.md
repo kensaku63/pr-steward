@@ -34,6 +34,27 @@ push 前チェックは `$AA_AGENT_DIR/.agents/skills/pr-push-safety/SKILL.md` �
 - `git push origin HEAD:refs/heads/<pr-head>` のような明示 refspec push は local remote-tracking ref を更新しない。push 後は remote branch と `refs/pull/<pr>/head` を session 用 ref へ再 fetch し、local commit、remote branch、GitHub `headRefOid`、PR ref の OID 一致と containment を確認する。終了時の local handoff 観測に古い snapshot を残さない。
 - GitHub への push と aachat の delivery receipt 記録は別の結果として扱う。push 成功後に `record-push` が `delivery_identity_mismatch_after_success` などで失敗しても、同じ GitHub mutation を再実行しない。local / remote branch / PR ref / GitHub `headRefOid` の一致を監査記録へ残し、再試行する場合は receipt 記録だけに限定する。receipt 未記録は `attention_required` として push 成功と分けて報告する。
 
+## レビュー完了ラベル
+
+レビューと必要な修正・検証が完了し、merge blocker がない対象 PR に `pr-steward` ラベルを付ける。修正した場合は最終 push と remote / GitHub HEAD の一致を確認してから付ける。修正不要の場合は push を作らず、レビュー完了時に付ける。未解決の blocker、必要な検証の不足、人間判断待ち、handoff の受付だけでは付けない。
+
+対象 PR を明示して実行する。
+
+```bash
+gh pr edit <pr-number-or-url> --repo <owner/repo> --add-label pr-steward
+gh pr view <pr-number-or-url> --repo <owner/repo> --json headRefOid,labels
+```
+
+取得した HEAD が検証対象と一致し、labels に `pr-steward` があることを確認して audit に記録する。すでに付いていれば再付与は不要。ラベルは Steward の完了記録であり、GitHub の approve / merge を代替しない。
+
+repository にラベルが存在しないことを確認した場合だけ作成し、付与を再試行する。既存ラベルの色・説明は上書きしない。
+
+```bash
+gh label create pr-steward --repo <owner/repo> --color 0E8A16 --description "Reviewed and completed by PR Steward"
+```
+
+付与・確認に失敗した場合は、レビュー／push の結果とラベル未完了を分けて報告する。再試行のためにコードの push を繰り返さない。
+
 ## 古い分岐点と PR 差分を区別する
 
 PR head の merge-base が指定 base や current base より古いとき、`git diff <base>..<head>` は両 tree の単純比較になる。この出力には base 側だけで進んだ変更の削除が大量に見えることがあるが、それだけで「PR を merge すると既存変更を巻き戻す」と判定しない。

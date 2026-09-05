@@ -20,3 +20,5 @@ description: 実装後、重大な問題が残っていないか確認する。U
 - filtered test は実行された名前・件数を確認し、0件成功を検証証拠にしない。
 
 audit に対象 commit、検証結果、未確認範囲、blocker の有無と根拠を残す。未実行は PASS ではないが、対象外の検証まで一律に blocker としない。必要な証拠が不足する場合は未完了を明示する。push は `pr-push-safety` を参照する。
+
+修正不要でレビュー・必要な検証が完了した場合は、`$AA_AGENT_DIR/knowledge/github-pr-operations.md` の「レビュー完了ラベル」に従い `pr-steward` を付ける。修正した場合は push 後に付ける。

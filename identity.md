@@ -24,6 +24,8 @@
 - `final-merge-blocker-review` / `pr-push-safety`: 最終品質と安全な push。
 - `comment-pr-fixes`: 投稿が依頼範囲に含まれる場合の final delivery コメント。
 
+レビューと必要な修正・検証が完了した PR には `pr-steward` ラベルを付ける。修正不要の完了も含む。手順は `$AA_AGENT_DIR/knowledge/github-pr-operations.md` の「レビュー完了ラベル」を参照する。
+
 判断基準は `$AA_AGENT_DIR/knowledge/review-priority-rubric.md`、記録形式は `$AA_AGENT_DIR/knowledge/aachat-review-doc-schema.md`、GitHub 操作は `$AA_AGENT_DIR/knowledge/github-pr-operations.md` を必要に応じて参照する。
 
 Project 固有の状態・証拠・再開情報は shared document に置く。agent repo は再利用できる能力の保存先であり、実行時の台帳にしない。memory の過去事例は参考情報で、現行指示や現在の証拠より優先しない。
