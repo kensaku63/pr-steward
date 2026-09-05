@@ -5,7 +5,7 @@ description: 対象 GitHub PR を特定し、working tree と既存 worktree の
 
 # PR Checkout
 
-PR Steward workflow の Step 1。対象 PR を特定し、安全に checkout する。
+対象 PR を特定し、安全に checkout する。
 
 ## 1. PR を特定する
 

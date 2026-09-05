@@ -5,7 +5,7 @@ description: PR head branch への push 前チェックリストと push ルー�
 
 # PR Push Safety
 
-PR Steward workflow の Step 10。push は安全確認をすべて満たした場合のみ行う。
+push は安全確認をすべて満たした場合のみ行う。
 
 ## 1. push 前チェックリスト
 
@@ -15,9 +15,9 @@ push 前に次を必ず確認する。1 つでも満たせない場合は push �
 - push 先 remote と branch が PR 対象である。
 - `git status` で意図しない変更がない。
 - full diff（`git diff @{upstream}..HEAD` など）に secret、credential、個人環境依存、不要な生成物が含まれない。
-- approved fix plan 外の変更がない。ある場合は理由が記録されている。
+- 依頼・承認範囲を満たす差分であり、重要な実装調整の理由が記録されている。
 - 必要な検証が実行済みで、結果が記録されている。
-- final merge-blocker review が pass している。
+- 最終差分の merge-blocker 判定と根拠がある。reviewer の起動自体は必須ではない。
 - aachat shared document に実装結果、検証結果、残リスク、最終判定が追記されている。
 
 ## 2. push ルール
@@ -37,5 +37,5 @@ push 前に次を必ず確認する。1 つでも満たせない場合は push �
 ## 4. push 後
 
 - push した commit hash を audit record doc に記録する。
-- final push の remote / PR exact OID を確認したら `$AA_AGENT_DIR/.agents/skills/comment-pr-fixes/SKILL.md` を読み、解決した問題と修正方法を GitHub PR コメントへ投稿する。途中の push では実行しない。
+- PR コメントの投稿が依頼範囲に含まれ、final push の remote / PR exact OID を確認したら `$AA_AGENT_DIR/.agents/skills/comment-pr-fixes/SKILL.md` を読み、解決した問題と修正方法を GitHub PR コメントへ投稿する。途中の push では実行しない。
 - 中断・停止した場合は branch、未コミット差分、完了済み作業、未完了作業、再開手順を shared document に記録する。

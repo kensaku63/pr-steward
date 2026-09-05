@@ -1,6 +1,6 @@
 ---
 name: comment-pr-fixes
-description: 修正実装と最終検証が完了し、PR head branch への最終 push が成功した直後、または PR を新規作成した直後に、解決した問題と修正方法を GitHub PR コメントへ簡潔に投稿する skill。Use only at final PR delivery; do not use during planning, review, implementation, validation, or intermediate pushes.
+description: 修正実装と最終検証が完了し、PR head branch への最終 push が成功した直後、または PR を新規作成した直後に、解決した問題と修正方法を GitHub PR コメントへ簡潔に投稿する skill。Use when an authorized final PR delivery comment is ready; do not post on intermediate pushes.
 ---
 
 # Comment PR Fixes
@@ -15,16 +15,16 @@ PR 参加者が、何が問題で、最終的にどう直ったかを差分調�
 - final merge-blocker review が pass している。
 - PR head branch への最終 push が成功した、または PR 作成が成功している。
 - local HEAD、remote branch、GitHub `headRefOid` の exact OID が一致している。
-- 対象 PR と投稿権限を確認できている。
+- 対象 PR、投稿の依頼・承認、操作権限を確認できている。
 
-途中の実装、review、検証、commit、push では本文を読んだりコメント案を蓄積したりしない。
+投稿は最終状態が確定してから行う。事前に手順や下書きを確認してよい。
 
 ## 1. 最終状態から事実を再構成する
 
 投稿時点で次を読み直す。
 
 - steward の修正前 OID から final OID までの commit と full diff。
-- evidence-validated な review issue と approved fix plan。
+- audit または既存の issue / plan にある、検証した問題と修正判断。
 - 実行済み検証の command、結果、未実施項目。
 - final merge-blocker review の判定と残リスク。
 
@@ -32,7 +32,7 @@ session transcript や記憶だけに依存しない。変更ファイルの列�
 
 ## 2. コメントを書く
 
-次の短い構造を使う。
+次は短い構造の例。内容と規模に合わせて調整してよい。
 
 ```markdown
 ## 修正内容

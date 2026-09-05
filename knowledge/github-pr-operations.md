@@ -49,7 +49,7 @@ PR head の merge-base が指定 base や current base より古いとき、`git
 
 GitHub PR コメントには、PR 参加者が読むべき結論だけを書く。投稿してよい内容は、PR 参加者の判断または次の行動を変えるものに限る。
 
-投稿してよい内容:
+投稿が依頼・承認範囲に含まれる場合に扱う内容:
 
 - merge value gate の `reject` または `needs-human` の結論。
 - 根拠、影響範囲、期待される修正方針が揃った具体的な bug、risk、regression 指摘。
@@ -70,7 +70,7 @@ GitHub PR コメントには、PR 参加者が読むべき結論だけを書く�
 
 ## 既存 PR レビューの取得
 
-並列レビュー開始前に、PR 上の既存 feedback を全 surface から取得する。Cursor / Codex の投稿だけを名前 filter で探すのではなく、全投稿を取得してから source metadata で識別する。
+PR の既存 feedback を確認するときは、次の surface を使う。Cursor / Codex の投稿だけを名前 filter で探すのではなく、全投稿を取得してから source metadata で識別する。
 
 最低限取得する surface:
 

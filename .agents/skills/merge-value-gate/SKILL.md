@@ -5,11 +5,11 @@ description: PR を後続の自動レビュー・修正フェーズに進める�
 
 # Merge Value Gate
 
-PR Steward workflow の Step 2。PR を後続の自動レビュー・修正フェーズに進める価値があるかを判定する。
+PR を後続の自動レビュー・修正フェーズに進める価値があるかを判定する。
 
-## 1. 必ず答える問い
+## 1. 判断の参考
 
-判定前に、PR の説明、差分、関連 Issue、repo 方針を読み、次に答える。
+判定前に、PR の説明、差分、関連 Issue、repo 方針を読み、価値とリスクを判断する。次は参考観点であり、全問の回答文書は不要。
 
 1. この PR は Issue、仕様、ユーザー価値、運用改善、バグ修正のいずれかに明確につながっているか。
 2. repo の方針、プロダクト方向、公開範囲、セキュリティ方針に反していないか。
@@ -39,14 +39,14 @@ secret、credential、token、private key らしき差分、または危険な�
 
 ## 4. 結果の記録と通知
 
-- 判定と根拠（答えた問いと証拠）を audit record doc に記録する。
-- `reject` / `needs-human` の場合のみ、GitHub PR コメントに結論を投稿する。`pass` はコメント不要。ただし secret 等の検出が理由の場合は公開コメントを投稿せず、Project Ask だけを使う。
+- 判定と根拠（主要な証拠）を audit record doc に記録する。
+- 投稿が依頼範囲に含まれる場合、`reject` / `needs-human` の結論を GitHub PR コメントへ簡潔に共有できる。`pass` はコメント不要。ただし secret 等の検出が理由の場合は公開コメントを投稿せず、Project Ask だけを使う。
 - reject コメントは事実ベースの理由、確認した証拠、再提出条件を最大 3 件で簡潔に書く。
 - 作者の意図・能力への評価、証拠のない推測、secret の値そのものは書かない。
 - `needs-human` の場合は、人間に選択してほしい判断事項と選択肢ごとの影響を asks に書く（`$AA_AGENT_DIR/knowledge/human-approval-policy.md` 参照）。
 
 ## 5. 次のステップ
 
-- `pass`: `parallel-pr-review` に進む。
+- `pass`: 必要なレビュー・修正へ進む。分担する場合は `parallel-pr-review` を参照する。
 - `needs-human`: 人間の回答を待つ。回答後に再判定する。
-- `reject`: コメント投稿と記録をして終了する。
+- `reject`: 根拠を記録して報告する。GitHub への投稿は依頼・承認範囲に含まれる場合だけ行う。
