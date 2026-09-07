@@ -35,7 +35,16 @@ git branch --show-current
 - 判定できない場合は `dirty_worktree` として停止し、現在状態と次アクションを記録して人間に確認する。
 - user changes の破棄、上書き、revert は禁止。
 
-## 3. 既存 worktree の branch 占有を確認する
+## 3. merge 済み PR を checkout しない
+
+metadata の `state` が `MERGED` の場合、review のために `gh pr checkout` を実行しない。merged PR の head branch へ事後 push しても main は変わらず、限定 fetch 設定では tracking 失敗の前に index / working tree だけが head tree へ更新されることがある。
+
+- 指定 base / head、merge commit、fresh `origin/main` を Git object と GitHub metadata から read-only で確認する。必要なら `refs/pull/<number>/head` を session 専用 ref へ fetch するが、branch switch はしない。
+- 修正不要なら code branch を作らず audit と許可された completion label だけを扱う。
+- current main に有効な blocker が残る場合、元 PR head を修正先にしない。follow-up delivery が依頼・承認範囲にあるときだけ、fresh `origin/main` から session 固有 branch を作って修正・検証し、新しい PR へ届ける。権限がなければ accepted issue、必要な判断、再開条件を記録する。
+- original PR と follow-up PR の head、receipt、label、hosted checks は別の証拠として audit に残す。
+
+## 4. 既存 worktree の branch 占有を確認する
 
 ```bash
 git worktree list --porcelain
@@ -69,7 +78,7 @@ git switch --no-track -c "pr-steward/<number>-<session-suffix>" \
 - fallback branch に upstream は設定しない。workspace の限定的な `remote.origin.fetch` では、PR head の remote ref が tracking branch として認識されないことがある。
 - 後で push するときの target は local branch 名ではなく、最初に記録した PR の `headRepository` と `headRefName`。`pr-push-safety` で権限を確認し、明示的な refspec を使う。
 
-## 4. checkout 後に確認する
+## 5. checkout 後に確認する
 
 ```bash
 git branch --show-current
@@ -96,7 +105,7 @@ git diff --stat
 - 現在の HEAD / index / working tree と PR head の一致を調べ、既存変更を破棄しない方法で branch ref を整合させる。
 - 原因を確認しないまま同じ `gh pr checkout` を繰り返さない。
 
-## 5. 更新の取り込み
+## 6. 更新の取り込み
 
 - 通常経路では pull は fast-forward のみ許可する: `git pull --ff-only`
 - fallback 経路では同じ session 専用 ref へ再 fetch し、OID を照合してから `git merge --ff-only <session-ref>` で更新する。
@@ -110,7 +119,7 @@ git diff --stat
 - user changes の破棄、上書き、revert。
 - force push、rebase、history rewrite。
 
-## 6. 記録
+## 7. 記録
 
 checkout 結果（PR number、PR head repository / branch、local branch、HEAD、使用した通常 / fallback 経路、working tree 状態、明示 push target）を audit record doc に記録する。schema は `$AA_AGENT_DIR/knowledge/aachat-review-doc-schema.md` を参照。
 
