@@ -1,22 +1,22 @@
 ---
 name: implementation-handoff
-description: 別 Session に実装を委譲するとき、範囲・証拠・担当・完了条件を引き継ぐ。Use only when handing implementation to another Session.
+description: PR の洗い出しから設計、設計から実装へ、根拠・担当・完了条件を別 Session に引き継ぐ。Use when handing a PR stage to the next Session.
 ---
 
-# Implementation Handoff
+# PR Stage Handoff
 
-別 Session への委譲を選んだときに使う。同じ Session で続行できる仕事に handoff を作る必要はない。
+Session 分離は identity の基準に従う。洗い出し Session は設計 Session へ、設計 Session は実装 Session へ直接引き継ぐ。単一 Session で続ける仕事に handoff 文書は不要。
 
-既存の audit / plan に次の再開情報があればそれを使い、不足する場合だけ shared document を補う。
+既存の audit / plan に再開情報があれば使い、不足する場合だけ shared document を補う。
 
 - 対象 PR、base / head、証拠を確認した commit。
-- 目的、決まった修正範囲、既存承認と判断が必要な境界。
-- 関連する課題・証拠と、必要な検証。
-- 担当 Session、次に行う作業、完了時に必要な delivery 証拠。
-- 停止中なら理由、未完了作業、再開条件。
+- 問題の証拠、決定事項・未決事項、承認範囲、必要な検証。
+- 次段階の目的・完了条件と担当 Session。停止時は理由、未完了作業、再開条件。
 
-Session 起動・報告は現在の aachat delegation / messaging contract に従う。短い依頼と正本へのリンクを渡す。起動受付だけを実装・push の成功として扱わない。
+起動・報告方法は現在の aachat delegation / messaging contract に従う。短い依頼と正本へのリンクを渡し、次 Session の起動受付と担当を記録して、自分の成果と引き継ぎ先を報告し `chat session finish` で終了する。起動失敗は引き継ぎ完了にせず、未完了と再開に必要な情報を残す。受付は次段階の成果や delivery の成功を意味しない。
 
-委譲後は担当に実装・検証・最終レビュー・安全な push を任せる。重複編集や定期的な進捗確認を行わない。完了・停止報告、または具体的な異常の証拠を受けたときに統合・再開を判断する。担当が終了し未完了なら、現在の Git 状態と証拠を確認して自分で再開するか代替担当へ渡す。
+段階間の引き継ぎでは、起動元は後続の完了待ち・再統合を担当しない。後続は自分の成果・引き継ぎまたは停止理由を記録・報告し、起動元への完了通知で再開させない。担当中の成果物への重複編集や定期的な進捗確認を行わない。
 
-実装担当は承認済みの目的と境界を守り、通常の実装上の調整は自分で解決する。実装中に設計の問題が判明したら修正方針を再評価し、技術名だけで停止しない。新しい製品判断や権限が必要な場合だけ人間へ返す。
+受け手は現在の PR head と引き継がれた証拠を照合し、必要な範囲だけ更新する。設計担当は reviewer の解法に拘束されず、実装担当は承認済みの目的と境界内の調整を自分で判断する。新しい製品判断や権限が必要な場合だけ人間へ返す。
+
+実装 Session が修正・検証・最終レビュー・安全な push と結果報告まで担当する。独立評価が必要なら、その Session から reviewer を使う。
