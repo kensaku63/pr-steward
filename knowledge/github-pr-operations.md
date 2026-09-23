@@ -32,7 +32,14 @@ push 前チェックは `$AA_AGENT_DIR/.agents/skills/pr-push-safety/SKILL.md` �
 - 同一 PR / 同一セッションの自動 fix-and-push は最大 3 回までとする。回数は対象 Project の audit record shared document に記録する。
 - push 失敗時は原因を分類し、勝手に force push しない。
 - `git push origin HEAD:refs/heads/<pr-head>` のような明示 refspec push は local remote-tracking ref を更新しない。push 後は remote branch と `refs/pull/<pr>/head` を session 用 ref へ再 fetch し、local commit、remote branch、GitHub `headRefOid`、PR ref の OID 一致と containment を確認する。終了時の local handoff 観測に古い snapshot を残さない。
-- GitHub への push と aachat の delivery receipt 記録は別の結果として扱う。既存PRへのpush後は `chat result report --stdin` でPR URL、実際のsource branch、baseを報告する。occupied-headのupstream-free fallback branchでは、明示した `head_sha` / `source_branch` が `WorkBoundaryUnknown` で拒否される場合がある。その場合も同じ GitHub mutation、branch切替、tracking設定を再実行しない。local / remote branch / PR ref / GitHub `headRefOid` の一致を監査記録へ残し、`chat report` でplatform issueを報告し、receipt未記録をpush成功と分けて報告する。
+- GitHub への push と aachat の delivery receipt 記録は別の結果として扱う。既存PRへのpush後は `chat result report --stdin` で提出を記録する。local branchとPR head branchが一致する通常経路では、PR URL、delivery、baseを1項目にまとめる。
+- occupied-headのsession-scoped fallbackでは、実際のlocal `source_branch` とremote `pushed_to` が異なる。CLIがPR付きdeliveryを `invalid_delivery/source_branch_mismatch` で拒否する場合は、PR参照とpush-only receiptを別項目にする。push-onlyには `base` を付けず、実際のbranch名と完全SHAをそのまま使う。これはPR作成receiptではなく、PR resultと実push receiptの別記録である。CLIの対応は実行結果で確認する。
+
+```json
+{"results":[{"ref":"https://github.com/owner/repo/pull/123"},{"delivery":{"repo":"workspace","pushed_to":"actual-pr-head-branch","head_sha":"<full-pushed-sha>","source_branch":"actual-local-fallback-branch"}}]}
+```
+
+- `WorkBoundaryUnknown` などでGit観測自体が拒否された場合は、記録の形を変えただけで解決済みにしない。同じGitHub mutation、branch切替、tracking設定を繰り返さず、local / remote branch / PR ref / GitHub `headRefOid` の一致と報告エラーをauditへ残す。receipt未記録をpush成功と区別し、platform issueは `chat report` で報告する。push-only receipt成功後も終了時に `pull_request_not_created` / `unexpected_target` が出る場合は、既存PRを作り直したり正しいpushを繰り返したりしない。実PRと4箇所のOID一致を根拠に、終了時観測の問題として報告する。
 
 ## レビュー完了ラベル
 
