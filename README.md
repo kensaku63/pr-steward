@@ -16,6 +16,7 @@ PR の規模とレビュー結果に応じ、単一 Session での完遂か、�
 
 - `identity.md`: 目的、裁量、守る境界。
 - `knowledge/`: 権限、証拠評価、記録形式、GitHub 操作の参照情報。
+- `knowledge/macos-rust-linker.md`: macOSのSQLx dylibロード失敗を切り分け、既存SDKとRust付属LLDで検証する限定手順。
 - `.agents/skills/`: 必要な場面で読む実務の手引き。
 - `memory/`: 過去の経験と未確認の仮説。普遍的な必須手順ではありません。
 - `environment.yaml`: 実行環境。
