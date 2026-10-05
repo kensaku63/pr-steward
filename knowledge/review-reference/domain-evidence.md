@@ -21,3 +21,7 @@
 - 制御応答の終点は仕様で約束した実処理の入口に置く。writerへの送信到達は、停止受信やpermission応答処理開始の代用にならない。1回だけ受理される操作は実行対象を用意し直し、無効な再送でサンプル数を増やさない。
 - baseline/loadは同じbuild最適化・runtime構成で比較する。入力件数だけでなく投入遅延・実処理時刻も残し、backpressureで試験を延長した結果や、負荷終了後の制御サンプルを指定負荷の合格に含めない。timeoutや欠測を除外してp95を良く見せない。
 - 診断bytesから省略済みの値を除外する場合は、残る識別skeletonと描画用コピーの実体も別に測る。診断値0だけでは保持量が小さくなった証拠にならない。
+
+## Typed JSON reader と履歴比較
+
+opt-in比較へ破損処理を追加するとき、通常readerのtyped decode・legacy判定・container authorityを守る。Rust/JavaScriptの数値同値と検証範囲の扱いは [Typed JSON reads and comparison boundaries](../typed-json-read-and-comparison-boundaries.md) を必要時に参照する。
