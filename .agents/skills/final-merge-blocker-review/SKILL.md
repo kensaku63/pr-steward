@@ -18,6 +18,8 @@ description: 実装後、重大な問題が残っていないか確認する。U
 - 環境不在という報告は、慣用的な port / env ではなく repo の正本 runner で確かめる。
 - timeout は待機前の decode、fixture、早期失敗も調べる。根拠なく timeout や assertion を緩めない。
 - Dialogのkeyboard testは初期autofocus先のfocusを確認してからTabで対象へ進み、対象focusをassertしてSpace/Enterを入力する。表示直後のprogrammatic focusは遅れて走るautofocusに奪われることがある。checkboxが未選択ならtrace・失敗画像・実focus先を照合し、test操作の競合を製品の不具合と混同しない。根拠なくUI guardや固定sleepを追加しない。
+- Base UI SelectのoptionへfireEvent.clickしても選択が変わらない場合は、installed implementationのhighlight条件を確認する。highlightされたoptionだけをcommitする実装では、mouseMoveで対象をhighlightしてからclickし、triggerの選択値更新をassertする。optionの存在やclick発火だけで選択成功と扱わず、製品へguardや固定sleepを足さない。
+- DB regressionのfixtureは現行enum・CHECK制約・HTTP error変換に合わせる。設計文中の呼称からroleやstatus codeを推測しない。immutableなowner/identityは初回INSERTで正しく設定し、fixtureを後から移動するために保護制約を迂回しない。fixtureの準備失敗と製品の退行を分ける。
 - filtered test は実行された名前・件数を確認し、0件成功を検証証拠にしない。
 
 audit に対象 commit、検証結果、未確認範囲、blocker の有無と根拠を残す。未実行は PASS ではないが、対象外の検証まで一律に blocker としない。必要な証拠が不足する場合は未完了を明示する。push は `pr-push-safety` を参照する。
