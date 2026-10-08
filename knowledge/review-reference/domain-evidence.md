@@ -32,3 +32,9 @@ opt-in比較へ破損処理を追加するとき、通常readerのtyped decode�
 - fetch mockを複数回使う場合はrequestごとに新しい`Response`を返す。同じResponseの再利用によるbody consumed errorを、APIのdecode失敗と混同しない。
 - ReactFlowのfitは実containerの幅と高さ、positive寸法のResizeObserver通知、初回fitとzoom下限の全node boundsで確認する。寸法計算unitやmock wrapperだけで表示成功としない。wheel/zoom testは実際のpaneへ操作を届け、callback発火だけでzoom変更を判断しない。background refetchで選択・focus・読み位置・viewport transformが保持されることも変更範囲に応じて確認する。
 - accessible nameは実際にfocusされるrole button wrapperで確認する。明示`aria-label`を持つwrapperの内側へsr-only文を足しても、そのnameの状態表現は更新されない。実browserのrole/nameとEnter/Space選択を確認し、HTTP mockでのUI証拠、実DB/API証拠、SR音声の確認を区別する。commit前のbrowser結果を最終headへ使う場合は、対象component・関連入力・fixtureの同一性を照合し、挙動を変えた範囲だけ再実行する。
+
+## 対話 CLI の認証・承認・出力証拠
+
+- login statusの結果には、実際に使ったHOMEとproviderの設定・認証directoryの条件を付ける。新しい空のdirectoryで未ログインでも、通常の利用環境が未ログインとは限らない。人間が現在のマシンでの検証を指定した場合は、通常環境のlogin statusを確認し、認証情報を読んだり複製したりせず、許可された既存ログインをCLI経由で使う。fixture・診断対象・cwdの隔離と、認証環境の隔離は別の条件として扱う。
+- 対話動作が仕様に含まれる場合、実TUIでargv・cwd・stdin/stdout/stderrの接続、実効sandboxとapproval policy、個別承認・拒否・終了を確認する。helper unitや非対話実行だけで代替しない。修復試験はsynthetic fixtureへ限定し、機密値や悪意ある診断文もsyntheticにする。設定の上書き試験には一時的な専用profileを使い、既存設定を変更せず、試験後に自分が作ったprofileだけを削除する。
+- macOSのPTY captureでは、最後のslaveを閉じてからmasterを読むと未読stdoutが失われた事例がある。子processの終了codeを先に保存し、slaveを保持したままmasterを有限timeoutでdrainしてからdescriptorを閉じる。出力が空なら同じ接続構成でecho等の最小再現を行い、capture不良と製品不良を分ける。対話中の修復証拠と、receipt JSON・終了codeの証拠はそれぞれ記録し、再試験が出力確認だけなら修復成功まで再確認したとは扱わない。
