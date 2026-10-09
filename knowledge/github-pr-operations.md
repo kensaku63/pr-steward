@@ -23,6 +23,13 @@ checkout の実行手順は `$AA_AGENT_DIR/.agents/skills/pr-checkout/SKILL.md` 
 - user changes の破棄、上書き、revert。
 - force push、rebase、history rewrite。人間から依頼されても PR Steward は実行しない。
 
+## 実装途中で PR head や承認済みの表示が更新された場合
+
+- push前の再照合でheadが進んでいたら、新headとの差分と元Sessionの最新ユーザー指示を確認する。古いplanの配置や解法を理由に、新しい承認済みの変更を戻さない。PR本文だけで承認を推定せず、必要なときは元のユーザーmessageを直接読む。
+- 自分の未commit変更だけと完全に特定できる場合は、local一時patchへ保存し、そのpatchだけ逆適用してcleanを確認した後、最新PR専用refへfast-forwardする。必要な自分の差分を再適用し、上流が解決済みの症状には重複修正を加えない。特定できないdirty treeやuser changesへrestore/reset/stashを適用しない。
+- accepted surfaceの変更と各issueの残存を分けて判定する。上流の既存componentへの復帰が症状を解消する場合、production修正を省いて実際の操作経路のregressionで確認する。新しい表示に合わせてテストと必要なbrowser確認を更新し、旧headのPASSを新headの証拠にしない。
+- 更新理由、ユーザー指示の出典、取り込み前後head、除いた重複修正、検証対象はProject auditへ記録する。具体的なPR/OIDやreceiptをagent知識へ複製しない。通常pushと四OIDの条件は既存手順のまま守る。
+
 ## push ルール
 
 push 前チェックは `$AA_AGENT_DIR/.agents/skills/pr-push-safety/SKILL.md` を正本とする。
