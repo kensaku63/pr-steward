@@ -26,6 +26,12 @@
 
 opt-in比較へ破損処理を追加するとき、通常readerのtyped decode・legacy判定・container authorityを守る。Rust/JavaScriptの数値同値と検証範囲の扱いは [Typed JSON reads and comparison boundaries](../typed-json-read-and-comparison-boundaries.md) を必要時に参照する。
 
+## 診断コード生成物とsource symbolの移動
+
+- 診断コードの文字列・routingが同じでも、生成元の関数を移動・改名するとsupport inventoryのsource symbolが変わる。内部helperへの抽出も対象で、Rustの回帰成功だけではCLI/Webの生成契約一致を証明しない。
+- `dev/scripts/support-contract-README.md`に従いgeneratorを実行し、CLI appendixとWeb copyの両方を照合する。symbol移動だけなら参照だけを更新し、codeやrouting・復旧手順を追加変更しない。`--check`と既存mutation suiteで確認する。
+- CIのstale生成物はbase/headで同じcommandを比較して原因を分類する。base成功・head失敗なら今回の統合漏れとして修正する。upstream jobの失敗による後続SKIPPEDと、修正後のhosted CI pendingは、それぞれ未実行・実行中として記録する。
+
 ## React Query と実ブラウザーの表示証拠
 
 - tracked propertiesを使うqueryのhook testでは、render callbackが確認対象の`data`も読むようにする。`fetchNextPage()`の返り値とcacheには次pageがあるのに`result.current`が更新されない場合、testが`isSuccess`だけを読んで通知対象を限定していないか確認する。test内でquery resultをspreadして観測する方法も使える。先にcache・返り値・購読を照合し、製品へ`notifyOnChangeProps`の変更や強制rerenderを足さない。
