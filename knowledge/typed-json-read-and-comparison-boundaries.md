@@ -1,6 +1,6 @@
 # Typed JSON reads and comparison boundaries
 
-Use when an opt-in historical comparison adds corruption handling to an existing typed DB reader, or when Rust and JavaScript disagree on JSON equality.
+Use when an opt-in historical comparison adds corruption handling to an existing typed DB reader, Rust and JavaScript disagree on JSON equality or text boundaries, or a retained request needs rejection classification before editing can resume.
 
 ## Preserve the ordinary reader
 
@@ -21,3 +21,9 @@ Postgres jsonb rejects U+0000. A NUL test that cannot be persisted does not esta
 JSON has one number type, but serde_json distinguishes integer and float representations while JavaScript does not. If the approved comparison treats `1` and `1.0` as equal, use that rule consistently for both overall equality and changed entries. Preserve option presence, JSON types, array order, object key membership, and original left/right values.
 
 Keep integer-to-integer equality exact. For mixed integer/float comparisons, check finite/integral values and the integer range before casting. The rounded upper endpoints 2^63 and 2^64 must be excluded; converting all numbers to f64 can collapse distinct integers. Test signed/unsigned boundaries, symmetry, negative/exponent representations, and source-bytes-changed/resolved-unchanged in shared fixtures. This local repair does not solve JavaScript's general large-integer precision or authorize a new wire/parser contract.
+
+## Release retained requests only with admission evidence
+
+A 4xx response alone does not prove that a saved request was never accepted. Before allowing correction with a new nonce, require both the server's structured rejection and an invalid condition in the exact saved input that the actual admission path rejects before receipt creation or replay. Keep the allowlist finite and code-backed. Authentication loss, conflict, unknown/non-JSON errors, network failure and otherwise valid requests must retain the complete JSON, original destination and nonce. Inspect Rust ApiError's root before converting it to a CLI error. Remove only the matching saved intent/file, preserve editable input and preparation, and require full confirmation before sending a corrected request. Do not introduce receipt queries, cancellation state or generic exactly-once mechanisms merely to classify a known input error.
+
+Rust `str::trim` uses Unicode White_Space; JavaScript `trim()` differs at U+0085 and U+FEFF. A client-side proof must match the server's whitespace rule and count UTF-8 bytes, rather than UTF-16 string length or a broader trim. Test both differing code points, exact byte limits and multibyte text. Separately verify through the real HTTP/DB admission path that invalid input creates no receipt, while correction and exact replay create only one. Preserve null, empty and omitted JSON fields during unknown-outcome replay; validators must not silently normalize the saved request.
