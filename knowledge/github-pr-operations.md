@@ -78,6 +78,8 @@ PR head の merge-base が指定 base や current base より古いとき、`git
 - 実際の自動 merge 可否と result tree は `git merge-tree --write-tree <base> <head>` で worktree を変えずに確認する。
 - 二点 diff、三点 diff、merge result tree の件数と意味を audit record で分ける。
 - `merge-tree` が tree を生成しても、current base との統合後の test / lint / contract evidence を代替しない。
+- 複数worktreeはremote-tracking refを共有する。検証中に別Sessionのfetchで`origin/main`が進むことがあるため、merge-treeのbaseは完全OIDで固定して記録する。current mainとの適合性を判断する時点でremoteのbase branchも照合し、以前のmerge-tree成功を更新後baseの成功として使わない。
+- `baseRefOid`のsnapshotだけで最新mainとの適合性を確定しない。競合状態が変わったら、現在のremote main、取り込まれたPRのcommit、merge-treeとGitHub mergeableを照合する。同じ通知・保存・入力受付を別契約で変えるPR同士は、ours/theirsの機械採用ではなく、最終契約と既存ownerを確定してから統合する。起動受付・限定修正push・統合完了を分けて報告する。
 
 古い分岐点は release risk の調査 signal だが、巻き戻しや conflict の事実ではない。推測を blocker にせず、merge result と最終検証を根拠に判定する。
 
