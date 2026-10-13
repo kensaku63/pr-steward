@@ -22,6 +22,12 @@
 - 疑わしいcycleはisolated DBで実際のlock mode・FK・transaction順を再現し、同じscheduleのbase/headで比較する。最小SQL再現はlock protocolの証拠であり、製品経路全体の回帰成功とは区別する。修正のregressionでは既存mutationを含む実経路の到達を同期信号で確定し、sleepだけの推定や新しいtest-only state modelで代用しない。
 - 十分な解決状態を先に定め、既存の認可・latest-input・lease契約を保つ最小lock責務を選ぶ。deadlock retry、fence、新stateを自動で追加しない。対象PR/OID・実行receiptはProject auditに残し、この参照へ複製しない。
 
+## 非同期通知の時刻と後続入力の認可
+
+- 同期で公開していた結果をqueueへ移すと、rowのseq・created_atは通知受付を表し、公開・完了を表さなくなる。「結果報告後の次の入力で操作を許す」既存guardがその値を比較していないか確認する。モデル実行の直列化だけでは、通知前に受け付けた入力と通知後の入力を区別できない。
+- queue挿入→人間入力→通知成功/失敗→入力処理の順を、同一会話と別会話で検証する。失敗通知後の回復と一般的な入力受付は別の契約として維持し、既存timestamp・責務で解けるか先に判断する。新しいready flagやstate machineを自動で追加しない。
+- 実guard SQLをVALUES CTEのfixtureで実行する方法は、比較境界の成立条件をread-onlyで切り分ける証拠になる。ただし実serviceのtransaction・worker・tool起動を含む回帰試験とは区別する。PR固有のSQL、OID、receiptはProject auditへ残す。
+
 ## 負荷試験の処理到達と投入条件
 
 - 関数呼出後のcounterは、有効な処理の完了を証明しない。未知ID、未登録の要求、終了済み状態などで早期returnするfixtureを除き、必要な初期登録を実経路へ通してから測定する。最終stateや実出力も確認し、軽いno-opを負荷として数えない。
@@ -36,6 +42,7 @@ opt-in比較へ破損処理を追加するとき、通常readerのtyped decode�
 ## 診断コード生成物とsource symbolの移動
 
 - 診断コードの文字列・routingが同じでも、生成元の関数を移動・改名するとsupport inventoryのsource symbolが変わる。内部helperへの抽出も対象で、Rustの回帰成功だけではCLI/Webの生成契約一致を証明しない。
+- 診断を削除した場合もroutingのstale entryとCLI/Web生成inventoryを照合する。削除コードを互換用に戻してcheckerだけを通さず、現行の公開診断・既存dynamic familyを正本generatorで確認する。
 - `dev/scripts/support-contract-README.md`に従いgeneratorを実行し、CLI appendixとWeb copyの両方を照合する。symbol移動だけなら参照だけを更新し、codeやrouting・復旧手順を追加変更しない。`--check`と既存mutation suiteで確認する。
 - CIのstale生成物はbase/headで同じcommandを比較して原因を分類する。base成功・head失敗なら今回の統合漏れとして修正する。upstream jobの失敗による後続SKIPPEDと、修正後のhosted CI pendingは、それぞれ未実行・実行中として記録する。
 
