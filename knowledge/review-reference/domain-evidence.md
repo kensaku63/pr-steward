@@ -22,6 +22,8 @@
 - lease付きmutationがturn lockを保持している間はheartbeat renewalも待ち得る。guard取得時点で有効なleaseが、処理中に期限を越えるscheduleを除外しない。最終的に409となる入力も、拒否判定前に取得するlockでcycleに参加できる。
 - 疑わしいcycleはisolated DBで実際のlock mode・FK・transaction順を再現し、同じscheduleのbase/headで比較する。最小SQL再現はlock protocolの証拠であり、製品経路全体の回帰成功とは区別する。修正のregressionでは既存mutationを含む実経路の到達を同期信号で確定し、sleepだけの推定や新しいtest-only state modelで代用しない。
 - 十分な解決状態を先に定め、既存の認可・latest-input・lease契約を保つ最小lock責務を選ぶ。deadlock retry、fence、新stateを自動で追加しない。対象PR/OID・実行receiptはProject auditに残し、この参照へ複製しない。
+- 実reader途中の観測変化は、対象relationのlockで本番queryを停止し、未取得DB lockへの到達をboundedに確認してから状態を変える。対象Sessionの新turnで同じ通知を延期する場合と、会話への新入力で古い通知をsupersedeする場合を別schedule・別assertで検証する。共通observe helperの差分検査だけをreader途中回帰の代用にしない。
+- barrierへの到達待ちでは、対象futureが先にvalidation/権限/fixture準備の失敗で終わっていないかも観測する。既存APIの名前・enum・CHECKに有効な入力を使い、早期失敗をlock timeoutや製品raceと取り違えない。到達を成立させるために製品のguardや制約を緩めない。
 
 ## 非同期通知の時刻と後続入力の認可
 

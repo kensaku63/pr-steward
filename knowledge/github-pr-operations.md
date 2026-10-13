@@ -49,6 +49,12 @@ push 前チェックは `$AA_AGENT_DIR/.agents/skills/pr-push-safety/SKILL.md` �
 - PRのないpushは実際のremote branchを `git-branch:<owner/repo>:<branch>` のrefで報告する。旧 `delivery` objectや `source_branch` / `pushed_to` をreport payloadへ追加しない。unknown field等で部分失敗した場合は成功済み項目を再送せず、現行helpとcontractに照合して未記録分だけ扱う。retry_fileが返った場合は固定payloadを `--retry-stdin` で再送する。report失敗を理由に正しいpushやPR作成を繰り返さない。
 - `WorkBoundaryUnknown` などでGit観測自体が拒否された場合は、記録の形を変えただけで解決済みにしない。同じGitHub mutation、branch切替、tracking設定を繰り返さず、local / remote branch / PR ref / GitHub `headRefOid` の一致と報告エラーをauditへ残す。成果未記録をpush成功と区別し、platform issueは `chat report` で報告する。終了時に `pull_request_not_created` / `unexpected_target` が出ても、実PRと4箇所のOID一致を確認済みなら既存PRを作り直したり正しいpushを繰り返したりしない。
 
+## preflight と mutation の実行gate
+
+shellやtoolのpreflight失敗は、呼出し側の例外とは限らない。通常push、PR本文更新、label等の依存操作は、返却されたexit codeまたは成功fieldを明示的に判定し、非成功ならその操作を開始しない。複数toolを順にawaitするだけではgateにならない。preflightを表示してから無条件にmutationを呼ぶ構成を避ける。
+
+最新main統合の作業中にmainが進んだ場合、作者headが不変でもbase整合の確認は別に必要。正式にmergeされた変更と未mergeの別owner作業を区別し、許可された通常mergeで現main契約を保持する。取り込みによる影響と検証対象headを更新し、旧headのPASSを新headへ繰り上げない。不変file/objectの証拠を再利用する場合はその同一性と元headを記録する。
+
 ## レビュー完了ラベル
 
 レビューと必要な修正・検証が完了し、merge blocker がない対象 PR に `pr-steward` ラベルを付ける。修正した場合は最終 push と remote / GitHub HEAD の一致を確認してから付ける。修正不要の場合は push を作らず、レビュー完了時に付ける。未解決の blocker、必要な検証の不足、人間判断待ち、handoff の受付だけでは付けない。
