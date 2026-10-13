@@ -15,6 +15,13 @@
 - legacy clientの不完全snapshotではdeactivateを省略してよいが、source watermarkや世代判定を迂回してはならない。stale snapshotは既存rowの復活だけでなく、削除済みの未登録rowのinsertもno-opでなければならない。
 - payload budgetのため本文を省略する場合、hashやdigestが変わったrowに旧cacheを残さない。metadataだけでbudgetを超える場合も主要処理を停止させず、無効なpartial reportを送らない挙動を境界testで固定する。
 
+## DB lock順の変更と既存mutation
+
+- lock順を揃える変更では、変更したfinish/admit/expireだけでなく、同じrowを保持する既存mutationも確認する。INSERTの外部キー検査による参照先rowのKEY SHAREなど、SQLに明示されないlockを含める。turn→owner、owner→conversation、conversation→turnのような三者cycleは、各二者だけの試験では見落とす。
+- lease付きmutationがturn lockを保持している間はheartbeat renewalも待ち得る。guard取得時点で有効なleaseが、処理中に期限を越えるscheduleを除外しない。最終的に409となる入力も、拒否判定前に取得するlockでcycleに参加できる。
+- 疑わしいcycleはisolated DBで実際のlock mode・FK・transaction順を再現し、同じscheduleのbase/headで比較する。最小SQL再現はlock protocolの証拠であり、製品経路全体の回帰成功とは区別する。修正のregressionでは既存mutationを含む実経路の到達を同期信号で確定し、sleepだけの推定や新しいtest-only state modelで代用しない。
+- 十分な解決状態を先に定め、既存の認可・latest-input・lease契約を保つ最小lock責務を選ぶ。deadlock retry、fence、新stateを自動で追加しない。対象PR/OID・実行receiptはProject auditに残し、この参照へ複製しない。
+
 ## 負荷試験の処理到達と投入条件
 
 - 関数呼出後のcounterは、有効な処理の完了を証明しない。未知ID、未登録の要求、終了済み状態などで早期returnするfixtureを除き、必要な初期登録を実経路へ通してから測定する。最終stateや実出力も確認し、軽いno-opを負荷として数えない。
