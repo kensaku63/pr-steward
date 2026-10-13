@@ -182,3 +182,9 @@ permission failure を未計測や PASS に読み替えず、その operation �
 - CI 失敗は、自分の変更起因か、既存失敗か、flaky / infra / permission / external service かを分類する。
 - 不明な CI 失敗を解消するために無制限な修正 push を繰り返さない。
 - 中断時は branch、未コミット差分、完了済み作業、未完了作業、再開手順を aachat shared document に記録する。
+
+## 担当確認で停止した仕事の再開
+
+- ユーザーの継続依頼や状況確認で再開を判断するときは、古いauditの「回答待ち」をそのまま使わず、既存Askの最新回答と担当Sessionの現在状態を読む。回答済みの担当決定を新しいAskや設計再承認へ戻さない。定期pollを追加する手順ではない。
+- 担当一本化・相手の停止・未commit変更の扱いが確定したら、その証拠を同じresumable実装Sessionへ渡し、現在のdelegation contractで続ける。保全・未取得とされた他者worktreeには触れず、未着手の仕事を新しい設計/実装Sessionへ分割し直さない。
+- Askを残したことだけでは、その回答が停止済み担当の実行へつながった証拠にならない。Ask回答、再開受付、実装着手、最終push/deliveryを別に記録し、必要なcontinuationの登録・再開は現在のasks/delegation contractと明示依頼に従う。
