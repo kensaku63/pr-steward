@@ -26,6 +26,8 @@
 
 - 同期で公開していた結果をqueueへ移すと、rowのseq・created_atは通知受付を表し、公開・完了を表さなくなる。「結果報告後の次の入力で操作を許す」既存guardがその値を比較していないか確認する。モデル実行の直列化だけでは、通知前に受け付けた入力と通知後の入力を区別できない。
 - queue挿入→人間入力→通知成功/失敗→入力処理の順を、同一会話と別会話で検証する。失敗通知後の回復と一般的な入力受付は別の契約として維持し、既存timestamp・責務で解けるか先に判断する。新しいready flagやstate machineを自動で追加しない。
+- 通知終端timestampへ比較を寄せる場合、通常成功・モデル失敗・権限変更・lease失効の各writerが同じDB clockで値を保存するか、terminal状態と非NULL timestampのCHECKがmigration後も残るかを照合する。この不変条件があれば会話別seq分岐やNULL fallbackを増やさずに済む。通知終端は既読・音声完成・委任した仕事の成功と区別する。
+- 時刻境界の回帰は固定timestampで通知前・同時刻・通知後を作り、成功/失敗の双方と実expire経路を区別する。入力の処理が通知後へ遅れても受付時刻を昇格させないこと、拒否したtransactionに割当・起動receiptなどの副作用が残らないことを確認する。受付可否と操作許可を一つのgateへ混ぜない。
 - 実guard SQLをVALUES CTEのfixtureで実行する方法は、比較境界の成立条件をread-onlyで切り分ける証拠になる。ただし実serviceのtransaction・worker・tool起動を含む回帰試験とは区別する。PR固有のSQL、OID、receiptはProject auditへ残す。
 
 ## 負荷試験の処理到達と投入条件
