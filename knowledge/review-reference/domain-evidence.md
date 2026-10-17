@@ -53,10 +53,16 @@ opt-in比較へ破損処理を追加するとき、通常readerのtyped decode�
 
 ## React Query と実ブラウザーの表示証拠
 
+- 閲覧などの連続可視時間は、hook単体だけでなく実componentの本文DOM交換・編集・error fallback・source回復を通して確認する。loadeddataの過去の成功だけで現在の内容表示を推定しない。表示終了でobserver/timerが止まり、再表示の現在elementと新しい連続時間で再開すること、同instanceの既送信は重複しないことを観測する。
 - tracked propertiesを使うqueryのhook testでは、render callbackが確認対象の`data`も読むようにする。`fetchNextPage()`の返り値とcacheには次pageがあるのに`result.current`が更新されない場合、testが`isSuccess`だけを読んで通知対象を限定していないか確認する。test内でquery resultをspreadして観測する方法も使える。先にcache・返り値・購読を照合し、製品へ`notifyOnChangeProps`の変更や強制rerenderを足さない。
 - fetch mockを複数回使う場合はrequestごとに新しい`Response`を返す。同じResponseの再利用によるbody consumed errorを、APIのdecode失敗と混同しない。
 - ReactFlowのfitは実containerの幅と高さ、positive寸法のResizeObserver通知、初回fitとzoom下限の全node boundsで確認する。寸法計算unitやmock wrapperだけで表示成功としない。wheel/zoom testは実際のpaneへ操作を届け、callback発火だけでzoom変更を判断しない。background refetchで選択・focus・読み位置・viewport transformが保持されることも変更範囲に応じて確認する。
 - accessible nameは実際にfocusされるrole button wrapperで確認する。明示`aria-label`を持つwrapperの内側へsr-only文を足しても、そのnameの状態表現は更新されない。実browserのrole/nameとEnter/Space選択を確認し、HTTP mockでのUI証拠、実DB/API証拠、SR音声の確認を区別する。commit前のbrowser結果を最終headへ使う場合は、対象component・関連入力・fixtureの同一性を照合し、挙動を変えた範囲だけ再実行する。
+
+## 診断を出さない経路の回帰証拠
+
+- Sentry等の捕捉0件は、client自体が無効でも成立する。fixtureのclient有効性とtransportを確認し、正常省略は0件、実不正入力の対照は固定reasonを1件捕捉する両方をassertする。実イベントを捕捉できる対照なしに「監視を汚さない」と判断しない。
+- 診断fixtureはin-memory transportと送信前の破棄で外部通信を防ぎ、async処理には同じhubを結び付ける。fixture設定の不備と製品の未捕捉を分け、捕捉を成立させるために製品へ診断やguardを追加しない。
 
 ## 未確定要求とフォームの寿命
 
