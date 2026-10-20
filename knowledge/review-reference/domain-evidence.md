@@ -9,6 +9,7 @@
 - `NOT VALID` constraint では、追加直後の `convalidated = false` と新規不正 write の拒否を同時に確認する。validation 後の既存 row 保持、legacy protection の存続、cleanup migration でだけ旧 constraint が消えることまで DB catalog と DML で観測する。
 - migration SQL の文字列や private helper の呼び出し順を正本にしない。既存 integration test が同じ schema family を所有するなら、その test を upgrade contract へ直し、第二 fixture、SQL parser、test-only state model を増やさない。
 - 後からmainを取り込む場合、PR開始時のlegacy形状だけでなく、mainで新たに合法となったqueued/running/failed等もupgrade入力へ含める。新migrationが旧modeをcompleted限定へ戻すと、競合のないSQLでも既存rowのvalidateに失敗し得る。適用順とmode別CHECKを照合し、旧migrationの書換えや一括mode変換より、新migrationの必要条件だけを整える。設計上の照合と実DBでのupgrade成功は別の証拠として記録する。
+- SQLx migratorの意図的な失敗を同じpoolで反復するtestが停止したら、pinされた `Migrator::run_direct` のlock解放経路を確認する。SQLx 0.9.0のpin `b54008a` は失敗時に成功末尾のunlockへ到達せず、poolへ返した接続がadvisory lockを保持し得る。拒否fixtureでは専用の `pool.acquire()` 接続へ通常migratorを渡し、失敗確認後にその接続を `close().await` してから次のfixtureへ進む。locking無効化・migration成功履歴の手動INSERT・assertion緩和で通過させない。中断した当該testのDBは所有と接続0を照合してcleanupし、中断と修正後の成功を別の証拠として記録する。
 
 ## Rolling compatibility と snapshot freshness
 
