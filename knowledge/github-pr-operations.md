@@ -76,6 +76,12 @@ gh label create pr-steward --repo <owner/repo> --color 0E8A16 --description "Rev
 
 付与・確認に失敗した場合は、レビュー／push の結果とラベル未完了を分けて報告する。再試行のためにコードの push を繰り返さない。
 
+## 段階リリースを含む一括マージ
+
+ラベル指定で一括マージするときは、各PRのDraft状態、現在のbase、PR本文に記載された先行リリース条件を照合する。後続が先行PRのブランチをbaseにしていると、そこへのマージで後続の差分まで先行PRに取り込まれる。先行段階の本番反映が明示条件なら、条件が満たされるまで後続をDraftのまま残し、既定の取り込み先と再開条件をauditに記録する。
+
+aachatで先行段階の本番反映を確認するときは、直近の成功したProduction Deployの `production-release-state/target_sha` を取得し、必要な先行コミットがそのSHAに含まれるか `git merge-base --is-ancestor` で確認する。マージ結果、PR CI、本番反映はそれぞれの証拠を記録する。
+
 ## 古い分岐点と PR 差分を区別する
 
 PR head の merge-base が指定 base や current base より古いとき、`git diff <base>..<head>` は両 tree の単純比較になる。この出力には base 側だけで進んだ変更の削除が大量に見えることがあるが、それだけで「PR を merge すると既存変更を巻き戻す」と判定しない。
