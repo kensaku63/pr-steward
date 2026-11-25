@@ -187,6 +187,8 @@ permission failure を未計測や PASS に読み替えず、その operation �
 - 同じ失敗が続く場合は停止し、現在状態、原因仮説、次アクションを記録する。
 - conflict は通常 workflow では解消せず停止する。対象 PR の明示的な merge 依頼がある場合だけ、`$AA_AGENT_DIR/knowledge/human-approval-policy.md` の限定条件に従う。
 - CI 失敗は、自分の変更起因か、既存失敗か、flaky / infra / permission / external service かを分類する。
+- main 取り込み後は、統合した tree を CI と同じ範囲で検査すると、main 由来のエラーも拾える。aachat の Frontend checks は `bash dev/scripts/check.sh quick web` で全体の Biome と型検査を実行する。
+- Frontend checks のログが Biome の終了メッセージだけに短縮されていたら、`pnpm --dir web exec biome check --diagnostic-level=error .` でエラー箇所を得る。失敗 head の対象ファイルを、その CI が使った base と照合して、統合で取り込まれた失敗か判別する。
 - 不明な CI 失敗を解消するために無制限な修正 push を繰り返さない。
 - 中断時は branch、未コミット差分、完了済み作業、未完了作業、再開手順を aachat shared document に記録する。
 
