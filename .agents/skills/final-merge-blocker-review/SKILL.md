@@ -28,6 +28,7 @@ description: 実装後、重大な問題が残っていないか確認する。U
 - 共通受付へ現在認可やreplay検査を移す場合は、呼出元のsource guard・Workflow・queue mutationも含めて実lock順序を確認する。facts取得がProjectをlockすると、既存のTeam→Project guardを後へ移すだけで逆順になる。receiptを先読みする場合もSELECTのrow lockを確認し、不変fieldsと既存の受付直列化が成立するなら非lock読取を検討する。先読みだけでreplay成功を確定せず、必要な現在認可はreceiptを返す前に検査する。
 - DB suiteのPoolTimedOutや通知待ちtimeoutは、同時wrapperの接続競合、shared DBを横断するdispatcherとfixture別EventRouterの混在も調べる。根拠がある場合はwrapperを独立実行し、fixture間だけtest threadsを絞って再検証する。test内部のspawn・DB lock barrier・assertionは維持し、並列suiteのFAIL、独立実行のPASS、base比較を別の証拠として残す。独立実行の成功だけで製品raceや既存flakeを断定しない。
 - aachatのdoctor codeなど利用者向け診断を追加・変更した場合は、workspace repoの `dev/scripts/support-contract-README.md` に従い既存routingとCLI/Webの生成契約を確認する。リンク先procedureと実際のnext_actionを照合し、generator・`--check`・mutation suiteで検証する。code登録漏れは自身の統合契約漏れとして修正し、新しいrepair routeを自動で増やさない。
+- 複数の worktree で Rust を検証するときは、それぞれの既定 target か固有の `CARGO_TARGET_DIR` を使う。共通 target では別 worktree でビルドしたテストバイナリが再利用されることがある。混用に気づいたら個別の target で再ビルドし、検証対象の commit と実行されたテスト名・件数を照合する。
 - filtered test は実行された名前・件数を確認し、0件成功を検証証拠にしない。
 
 audit に対象 commit、検証結果、未確認範囲、blocker の有無と根拠を残す。未実行は PASS ではないが、対象外の検証まで一律に blocker としない。必要な証拠が不足する場合は未完了を明示する。push は `pr-push-safety` を参照する。
